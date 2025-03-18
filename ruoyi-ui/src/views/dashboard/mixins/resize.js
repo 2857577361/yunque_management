@@ -15,7 +15,6 @@ export default {
       // avoid duplication init
       this.initListener()
     }
-
     // when keep-alive chart activated, auto resize
     this.resize()
   },

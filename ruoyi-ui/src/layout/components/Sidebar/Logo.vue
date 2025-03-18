@@ -6,15 +6,16 @@
         <h1 v-else class="sidebar-title" :style="{ color: sideTheme === 'theme-dark' ? variables.logoTitleColor : variables.logoLightTitleColor }">{{ title }} </h1>
       </router-link>
       <router-link v-else key="expand" class="sidebar-logo-link" to="/">
-        <img v-if="logo" :src="logo" class="sidebar-logo" />
-        <h1 class="sidebar-title" :style="{ color: sideTheme === 'theme-dark' ? variables.logoTitleColor : variables.logoLightTitleColor }">{{ title }} </h1>
+        <img v-if="logo" :src="logo" class="sidebar-logo" style="border-radius: 50%" />
+        <h1 class="sidebar-title" :style="{ color: sideTheme === 'theme-dark' ? variables.logoTitleColor : variables.logoLightTitleColor }" style="font-size: 30px">{{ title }} </h1>
       </router-link>
     </transition>
   </div>
 </template>
 
 <script>
-import logoImg from '@/assets/logo/logo.png'
+// import logoImg from '@/assets/logo/logo.png'
+import logoImg from '@/assets/logo/favicon.png'
 import variables from '@/assets/styles/variables.scss'
 
 export default {
