@@ -1,5 +1,7 @@
 package com.ruoyi.device.service.impl;
 
+import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.List;
 import com.ruoyi.common.utils.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,8 +57,51 @@ public class DeviceDataServiceImpl implements IDeviceDataService
      * @return 结果
      */
     @Override
-    public int insertDeviceData(DeviceData deviceData)
+    public int insertDeviceData(DeviceDataUpdateDTO deviceDataUpdateDTO)
     {
+        DeviceData deviceData = new DeviceData();
+        deviceData.setId(deviceDataUpdateDTO.getId());
+        deviceData.setDeviceId(deviceDataUpdateDTO.getDeviceId());
+        deviceData.setAddress(deviceDataUpdateDTO.getAddress());
+        deviceData.setDepartment(deviceDataUpdateDTO.getDepartment());
+        deviceData.setResponsiblePerson(deviceDataUpdateDTO.getResponsiblePerson());
+        deviceData.setAlarmPhone(deviceDataUpdateDTO.getAlarmPhone());
+        deviceData.setCoordinates(deviceDataUpdateDTO.getCoordinates());
+        deviceData.setWarrantyTime(deviceDataUpdateDTO.getWarrantyTime());
+        deviceData.setStatus(deviceDataUpdateDTO.getStatus());
+        deviceData.setCountry(deviceDataUpdateDTO.getCountry());
+        deviceData.setIsOpened(deviceDataUpdateDTO.getIsOpened());
+
+        // 根据传入的参数查询 user 表
+//        String username = deviceDataUpdateDTO.getResponsiblePerson(); // 假设负责人字段对应 username
+        String deptName = deviceDataUpdateDTO.getDeptName(); // 假设负责人字段对应 username
+        String deptType = deviceDataUpdateDTO.getDeptType();
+//        User user = userService.getUserByUsername(username);
+        User user = userService.getUserByDeptNameAndType(deptName, deptType);
+        String region = deviceDataUpdateDTO.getRegion();
+        if (region != null && !region.isEmpty()) {
+            deviceDataUpdateDTO.setRegion(region);
+            deviceData.setProvince(deviceDataUpdateDTO.getProvince());
+            deviceData.setCity(deviceDataUpdateDTO.getCity());
+            deviceData.setDistrict(deviceDataUpdateDTO.getDistrict());
+        }
+        if (user == null) {
+            // 如果 user 表中没有记录，则插入一条新记录
+            User newUser = new User();
+            newUser.setDeptName(deptName); // 假设部门字段对应 dept_name
+            newUser.setDeptType(deptType); // 默认类型
+            newUser.setUsername("default");
+            Long userId = userService.createUser(newUser);
+            deviceData.setOwnerId(userId); // 设置 owner_id
+        } else {
+            // 如果 user 表中有记录，则直接使用其 id
+            deviceData.setOwnerId(user.getId());
+        }
+
+        // 更新设备信息
+        deviceData.setUpdateTime(DateUtils.getNowDate());
+        deviceData.setStatus("运行中");
+//        return deviceDataMapper.updateDeviceData(deviceData);
         return deviceDataMapper.insertDeviceData(deviceData);
     }
 

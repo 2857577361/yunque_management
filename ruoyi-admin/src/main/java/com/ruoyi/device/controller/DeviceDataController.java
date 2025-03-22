@@ -76,9 +76,9 @@ public class DeviceDataController extends BaseController
     @PreAuthorize("@ss.hasPermi('device:device:add')")
     @Log(title = "设备列表", businessType = BusinessType.INSERT)
     @PostMapping
-    public AjaxResult add(@RequestBody DeviceData deviceData)
+    public AjaxResult add(@RequestBody DeviceDataUpdateDTO deviceDataUpdateDTO)
     {
-        return toAjax(deviceDataService.insertDeviceData(deviceData));
+        return toAjax(deviceDataService.insertDeviceData(deviceDataUpdateDTO));
     }
 
     /**

@@ -30,15 +30,15 @@ public interface IDeviceDataService
     /**
      * 新增设备列表
      * 
-     * @param deviceData 设备列表
+     * @param deviceDataUpdateDTO 设备列表
      * @return 结果
      */
-    public int insertDeviceData(DeviceData deviceData);
+    public int insertDeviceData(DeviceDataUpdateDTO deviceDataUpdateDTO);
 
     /**
      * 修改设备列表
      * 
-     * @param deviceData 设备列表
+     * @param deviceDataUpdateDTO 设备列表
      * @return 结果
      */
     public int updateDeviceData(DeviceDataUpdateDTO deviceDataUpdateDTO);

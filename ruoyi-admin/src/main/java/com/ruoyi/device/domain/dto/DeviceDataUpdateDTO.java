@@ -1,5 +1,6 @@
 package com.ruoyi.device.domain.dto;
 
+import java.lang.reflect.Array;
 import java.util.Date;
 
 public class DeviceDataUpdateDTO {
@@ -19,7 +20,28 @@ public class DeviceDataUpdateDTO {
     private Boolean isOpened;
     private String deptName;
     private String deptType;
+    private String region;
 
+    public String getRegion() {
+        return region;
+    }
+
+    public void setRegion(String region) {
+        this.region = region;
+        // 在设置region时，自动拆分并赋值给province、city和county
+        if (region != null && !region.isEmpty()) {
+            String[] parts = region.split(",");
+            if (parts.length >= 1) {
+                this.province = parts[0];
+            }
+            if (parts.length >= 2) {
+                this.city = parts[1];
+            }
+            if (parts.length >= 3) {
+                this.district = parts[2];
+            }
+        }
+    }
     public Long getId() {
         return id;
     }

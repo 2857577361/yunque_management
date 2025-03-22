@@ -152,7 +152,7 @@
             placeholder="请选择质保时间">
           </el-date-picker>
         </el-form-item>
-        <el-form-item label="国别选择" prop="count">
+        <el-form-item label="国别选择" prop="count" v-show="isAdd">
           <el-select
             v-model="form.country"
             placeholder="请选择国家类型"
@@ -169,7 +169,7 @@
         </el-form-item>
 
         <!-- 动态区域选择 -->
-        <template v-if="form.country === 'CN'">
+        <template v-if="form.country === 'CN' && isAdd">
           <el-form-item label="设备位置" prop="region">
             <el-cascader
               v-model="form.region"
@@ -247,6 +247,7 @@ export default {
       title: "",
       // 是否显示弹出层
       open: false,
+      isAdd: true,
       // 是否公开时间范围
       daterangeWarrantyTime: [],
       // 查询参数
@@ -415,10 +416,6 @@ export default {
       };
       this.resetForm("form");
     },
-    handleFormatRegion(row) {
-      let {province, city, district } = row
-      return [province, city, district]
-    },
     /** 搜索按钮操作 */
     handleQuery() {
       this.queryParams.pageNum = 1;
@@ -439,15 +436,14 @@ export default {
     /** 新增按钮操作 */
     handleAdd() {
       this.reset();
+      this.isAdd = true;
       this.open = true;
       this.title = "添加设备列表";
     },
     async getUserDetails(id) {
       const res = await getOwner(id);
-      // console.log(res.data);
       this.form.deptName = res.data.deptName;
       this.form.deptType = res.data.deptType;
-      // console.log(this.form.deptName);
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
@@ -456,9 +452,8 @@ export default {
       getDevice(id).then(async response => {
         this.form = response.data;
         await this.getUserDetails(row.ownerId);
-        console.log(row);
-        // this.form.region = this.handleFormatRegion(row)
-        this.form.region = ['shaanxi', 'xianyang', 'yangling']
+        this.form.isOpened = row.isOpened ? "true" : "false";
+        this.isAdd = false;
         this.open = true;
         this.title = "修改设备列表";
       });
@@ -475,6 +470,7 @@ export default {
               this.getList();
             });
           } else {
+            this.form.region = this.form.region.toString();
             addDevice(this.form).then(response => {
               this.$modal.msgSuccess("新增成功");
               this.open = false;
