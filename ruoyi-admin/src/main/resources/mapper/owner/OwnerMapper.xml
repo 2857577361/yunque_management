@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.owner.mapper.OwnerMapper">
+    
+    <resultMap type="Owner" id="OwnerResult">
+        <result property="id"    column="id"    />
+        <result property="deptName"    column="dept_name"    />
+        <result property="username"    column="username"    />
+        <result property="deptType"    column="dept_type"    />
+    </resultMap>
+
+    <sql id="selectOwnerVo">
+        select id, dept_name, username, dept_type from user
+    </sql>
+
+    <select id="selectOwnerList" parameterType="Owner" resultMap="OwnerResult">
+        <include refid="selectOwnerVo"/>
+        <where>  
+            <if test="id != null "> and id = #{id}</if>
+        </where>
+    </select>
+    
+    <select id="selectOwnerById" parameterType="Long" resultMap="OwnerResult">
+        <include refid="selectOwnerVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertOwner" parameterType="Owner" useGeneratedKeys="true" keyProperty="id">
+        insert into user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="deptName != null">dept_name,</if>
+            <if test="username != null and username != ''">username,</if>
+            <if test="deptType != null">dept_type,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="deptName != null">#{deptName},</if>
+            <if test="username != null and username != ''">#{username},</if>
+            <if test="deptType != null">#{deptType},</if>
+         </trim>
+    </insert>
+
+    <update id="updateOwner" parameterType="Owner">
+        update user
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="deptName != null">dept_name = #{deptName},</if>
+            <if test="username != null and username != ''">username = #{username},</if>
+            <if test="deptType != null">dept_type = #{deptType},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteOwnerById" parameterType="Long">
+        delete from user where id = #{id}
+    </delete>
+
+    <delete id="deleteOwnerByIds" parameterType="String">
+        delete from user where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

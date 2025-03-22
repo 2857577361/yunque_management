@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.device.mapper.DeviceDataMapper">
+    
+    <resultMap type="DeviceData" id="DeviceDataResult">
+        <result property="id"    column="id"    />
+        <result property="deviceId"    column="device_id"    />
+        <result property="address"    column="address"    />
+        <result property="department"    column="department"    />
+        <result property="responsiblePerson"    column="responsible_person"    />
+        <result property="alarmPhone"    column="alarm_phone"    />
+        <result property="coordinates"    column="coordinates"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="warrantyTime"    column="warranty_time"    />
+        <result property="status"    column="status"    />
+        <result property="country"    column="country"    />
+        <result property="province"    column="province"    />
+        <result property="city"    column="city"    />
+        <result property="district"    column="district"    />
+        <result property="ownerId"    column="owner_id"    />
+        <result property="isOpened"    column="is_opened"    />
+    </resultMap>
+
+    <sql id="selectDeviceDataVo">
+        select id, device_id, address, department, responsible_person, alarm_phone, coordinates, update_time, warranty_time, status, country, province, city, district, owner_id, is_opened from device_data
+    </sql>
+
+    <select id="selectDeviceDataList" parameterType="DeviceData" resultMap="DeviceDataResult">
+        <include refid="selectDeviceDataVo"/>
+        <where>  
+            <if test="deviceId != null  and deviceId != ''"> and device_id like concat('%', #{deviceId}, '%')</if>
+            <if test="responsiblePerson != null  and responsiblePerson != ''"> and responsible_person like concat('%', #{responsiblePerson}, '%')</if>
+            <if test="params.beginWarrantyTime != null and params.beginWarrantyTime != '' and params.endWarrantyTime != null and params.endWarrantyTime != ''"> and warranty_time between #{params.beginWarrantyTime} and #{params.endWarrantyTime}</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+        </where>
+    </select>
+    
+    <select id="selectDeviceDataById" parameterType="Long" resultMap="DeviceDataResult">
+        <include refid="selectDeviceDataVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertDeviceData" parameterType="DeviceData" useGeneratedKeys="true" keyProperty="id">
+        insert into device_data
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="deviceId != null and deviceId != ''">device_id,</if>
+            <if test="address != null and address != ''">address,</if>
+            <if test="department != null and department != ''">department,</if>
+            <if test="responsiblePerson != null and responsiblePerson != ''">responsible_person,</if>
+            <if test="alarmPhone != null and alarmPhone != ''">alarm_phone,</if>
+            <if test="coordinates != null and coordinates != ''">coordinates,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="warrantyTime != null">warranty_time,</if>
+            <if test="status != null and status != ''">status,</if>
+            <if test="country != null">country,</if>
+            <if test="province != null">province,</if>
+            <if test="city != null">city,</if>
+            <if test="district != null">district,</if>
+            <if test="ownerId != null">owner_id,</if>
+            <if test="isOpened != null">is_opened,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="deviceId != null and deviceId != ''">#{deviceId},</if>
+            <if test="address != null and address != ''">#{address},</if>
+            <if test="department != null and department != ''">#{department},</if>
+            <if test="responsiblePerson != null and responsiblePerson != ''">#{responsiblePerson},</if>
+            <if test="alarmPhone != null and alarmPhone != ''">#{alarmPhone},</if>
+            <if test="coordinates != null and coordinates != ''">#{coordinates},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="warrantyTime != null">#{warrantyTime},</if>
+            <if test="status != null and status != ''">#{status},</if>
+            <if test="country != null">#{country},</if>
+            <if test="province != null">#{province},</if>
+            <if test="city != null">#{city},</if>
+            <if test="district != null">#{district},</if>
+            <if test="ownerId != null">#{ownerId},</if>
+            <if test="isOpened != null">#{isOpened},</if>
+         </trim>
+    </insert>
+
+    <update id="updateDeviceData" parameterType="DeviceData">
+        update device_data
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="deviceId != null and deviceId != ''">device_id = #{deviceId},</if>
+            <if test="address != null and address != ''">address = #{address},</if>
+            <if test="department != null and department != ''">department = #{department},</if>
+            <if test="responsiblePerson != null and responsiblePerson != ''">responsible_person = #{responsiblePerson},</if>
+            <if test="alarmPhone != null and alarmPhone != ''">alarm_phone = #{alarmPhone},</if>
+            <if test="coordinates != null and coordinates != ''">coordinates = #{coordinates},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="warrantyTime != null">warranty_time = #{warrantyTime},</if>
+            <if test="status != null and status != ''">status = #{status},</if>
+            <if test="country != null">country = #{country},</if>
+            <if test="province != null">province = #{province},</if>
+            <if test="city != null">city = #{city},</if>
+            <if test="district != null">district = #{district},</if>
+            <if test="ownerId != null">owner_id = #{ownerId},</if>
+            <if test="isOpened != null">is_opened = #{isOpened},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteDeviceDataById" parameterType="Long">
+        delete from device_data where id = #{id}
+    </delete>
+
+    <delete id="deleteDeviceDataByIds" parameterType="String">
+        delete from device_data where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
