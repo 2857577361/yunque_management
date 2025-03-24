@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.device.mapper.WorkOrdersMapper">
+    
+    <resultMap type="WorkOrders" id="WorkOrdersResult">
+        <result property="id"    column="id"    />
+        <result property="workOrderId"    column="work_order_id"    />
+        <result property="deviceId"    column="device_id"    />
+        <result property="repairPerson"    column="repair_person"    />
+        <result property="repairLocation"    column="repair_location"    />
+        <result property="createDate"    column="create_date"    />
+        <result property="warrantyTime"    column="warranty_time"    />
+        <result property="repairContent"    column="repair_content"    />
+    </resultMap>
+
+    <sql id="selectWorkOrdersVo">
+        select id, work_order_id, device_id, repair_person, repair_location, create_date, warranty_time, repair_content from work_orders
+    </sql>
+
+    <select id="selectWorkOrdersList" parameterType="WorkOrders" resultMap="WorkOrdersResult">
+        <include refid="selectWorkOrdersVo"/>
+        <where>  
+            <if test="workOrderId != null  and workOrderId != ''"> and work_order_id like concat('%', #{workOrderId}, '%')</if>
+            <if test="deviceId != null  and deviceId != ''"> and device_id like concat('%', #{deviceId}, '%')</if>
+            <if test="repairPerson != null  and repairPerson != ''"> and repair_person like concat('%', #{repairPerson}, '%')</if>
+            <if test="params.beginCreateDate != null and params.beginCreateDate != '' and params.endCreateDate != null and params.endCreateDate != ''"> and create_date between #{params.beginCreateDate} and #{params.endCreateDate}</if>
+        </where>
+    </select>
+    
+    <select id="selectWorkOrdersById" parameterType="Long" resultMap="WorkOrdersResult">
+        <include refid="selectWorkOrdersVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertWorkOrders" parameterType="WorkOrders" useGeneratedKeys="true" keyProperty="id">
+        insert into work_orders
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="workOrderId != null and workOrderId != ''">work_order_id,</if>
+            <if test="deviceId != null and deviceId != ''">device_id,</if>
+            <if test="repairPerson != null and repairPerson != ''">repair_person,</if>
+            <if test="repairLocation != null and repairLocation != ''">repair_location,</if>
+            <if test="createDate != null">create_date,</if>
+            <if test="warrantyTime != null">warranty_time,</if>
+            <if test="repairContent != null and repairContent != ''">repair_content,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="workOrderId != null and workOrderId != ''">#{workOrderId},</if>
+            <if test="deviceId != null and deviceId != ''">#{deviceId},</if>
+            <if test="repairPerson != null and repairPerson != ''">#{repairPerson},</if>
+            <if test="repairLocation != null and repairLocation != ''">#{repairLocation},</if>
+            <if test="createDate != null">#{createDate},</if>
+            <if test="warrantyTime != null">#{warrantyTime},</if>
+            <if test="repairContent != null and repairContent != ''">#{repairContent},</if>
+         </trim>
+    </insert>
+
+    <update id="updateWorkOrders" parameterType="WorkOrders">
+        update work_orders
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="workOrderId != null and workOrderId != ''">work_order_id = #{workOrderId},</if>
+            <if test="deviceId != null and deviceId != ''">device_id = #{deviceId},</if>
+            <if test="repairPerson != null and repairPerson != ''">repair_person = #{repairPerson},</if>
+            <if test="repairLocation != null and repairLocation != ''">repair_location = #{repairLocation},</if>
+            <if test="createDate != null">create_date = #{createDate},</if>
+            <if test="warrantyTime != null">warranty_time = #{warrantyTime},</if>
+            <if test="repairContent != null and repairContent != ''">repair_content = #{repairContent},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteWorkOrdersById" parameterType="Long">
+        delete from work_orders where id = #{id}
+    </delete>
+
+    <delete id="deleteWorkOrdersByIds" parameterType="String">
+        delete from work_orders where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

@@ -8,7 +8,18 @@ export function listDevice(query) {
     params: query
   })
 }
-
+export function listDept() {
+  return request({
+    url: '/system/dept/names?parentId=101',
+    method: 'get'
+  })
+}
+export function listCity() {
+  return request({
+    url: '/system/city/tree',
+    method: 'get'
+  })
+}
 // 查询设备列表详细
 export function getDevice(id) {
   return request({

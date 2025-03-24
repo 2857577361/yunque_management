@@ -201,8 +201,7 @@
         <div v-if="form.deptType === 'private'">
           <el-form-item label="拥有者名称">
             <el-select v-model="form.deptName" placeholder="请选择拥有者名称">
-              <el-option label="企业A" value="companyA"></el-option>
-              <el-option label="企业B" value="companyB"></el-option>
+              <el-option v-for="(item,index) in deptOptions" :key="index" :label="item" :value="item"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="是否公开">
@@ -222,7 +221,7 @@
 </template>
 
 <script>
-import { listDevice, getDevice, delDevice, addDevice, updateDevice } from "@/api/device/device";
+import { listDevice, getDevice, delDevice, addDevice, updateDevice, listCity, listDept } from "@/api/device/device";
 import { getOwner } from "@/api/device/owner";
 
 export default {
@@ -243,6 +242,7 @@ export default {
       total: 0,
       // 设备列表表格数据
       deviceList: [],
+      deptOptions: [],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
@@ -263,61 +263,7 @@ export default {
         { label: '中国', value: 'CN' },
         { label: '外国', value: 'FRN' }
       ],
-      regionOptions: [
-        {
-          value: 'shaanxi',
-          label: '陕西省',
-          children: [
-            {
-              value: 'xianyang',
-              label: '咸阳市',
-              children: [
-                { value: 'yangling', label: '杨凌区' }
-              ]
-            }
-          ]
-        },
-        {
-          value: 'beijing',
-          label: '北京市',
-          children: [
-            {
-              value: 'haidian',
-              label: '海淀区',
-              children: [
-                { value: 'wudaokou', label: '五道口' }
-              ]
-            },
-            {
-              value: 'chaoyang',
-              label: '朝阳区',
-              children: [
-                { value: 'guomao', label: '国贸' }
-              ]
-            }
-          ]
-        },
-        {
-          value: 'guangdong',
-          label: '广东省',
-          children: [
-            {
-              value: 'shenzhen',
-              label: '深圳市',
-              children: [
-                { value: 'nanshan', label: '南山区' }
-              ]
-            },
-            {
-              value: 'guangzhou',
-              label: '广州市',
-              children: [
-                { value: 'tianhe', label: '天河区' }
-              ]
-            }
-          ]
-        }
-      ],
+      regionOptions: [],
       form: {},
       // 表单参数
       // form: {},
@@ -355,6 +301,14 @@ export default {
   },
   created() {
     this.getList();
+  },
+  async mounted() {
+    const res = await listCity()
+    const deptRes = await listDept()
+    console.log(res)
+    this.regionOptions = res
+    this.deptOptions = deptRes
+    console.log(this.regionOptions)
   },
   methods: {
     handleOwnerTypeChange(value) {
