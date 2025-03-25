@@ -101,4 +101,23 @@ public class WorkOrdersController extends BaseController
     {
         return toAjax(workOrdersService.deleteWorkOrdersByIds(ids));
     }
+
+    /**
+     * 上传维修信息
+     */
+    @PreAuthorize("@ss.hasPermi('device:orders:edit')")
+    @Log(title = "工单", businessType = BusinessType.UPDATE)
+    @PutMapping("/uploadRepairInfo")
+    public AjaxResult uploadRepairInfo(@RequestBody WorkOrders workOrders) {
+        return toAjax(workOrdersService.uploadRepairInfo(workOrders));
+    }
+
+    /**
+     * 查询维修信息
+     */
+    @PreAuthorize("@ss.hasPermi('device:orders:query')")
+    @GetMapping("/getRepairInfo/{id}")
+    public AjaxResult getRepairInfo(@PathVariable("id") Long id) {
+        return success(workOrdersService.selectRepairInfoById(id));
+    }
 }

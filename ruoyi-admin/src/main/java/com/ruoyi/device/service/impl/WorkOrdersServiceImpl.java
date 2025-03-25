@@ -90,4 +90,14 @@ public class WorkOrdersServiceImpl implements IWorkOrdersService
     {
         return workOrdersMapper.deleteWorkOrdersById(id);
     }
+
+    @Override
+    public int uploadRepairInfo(WorkOrders workOrders) {
+        return workOrdersMapper.uploadRepairInfo(workOrders);
+    }
+
+    @Override
+    public WorkOrders selectRepairInfoById(Long id) {
+        return workOrdersMapper.selectRepairInfoById(id);
+    }
 }

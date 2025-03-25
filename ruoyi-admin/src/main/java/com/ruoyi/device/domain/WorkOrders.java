@@ -53,6 +53,42 @@ public class WorkOrders extends BaseEntity
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String repairStatus;
 
+    /** 故障类型 */
+    @Excel(name = "故障类型")
+    private String faultType;
+
+    /** 维修方式 */
+    @Excel(name = "维修方式")
+    private String repairMethod;
+
+    /** 维修备注 */
+    @Excel(name = "维修备注")
+    private String repairNote;
+
+    public String getFaultType() {
+        return faultType;
+    }
+
+    public void setFaultType(String faultType) {
+        this.faultType = faultType;
+    }
+
+    public String getRepairMethod() {
+        return repairMethod;
+    }
+
+    public void setRepairMethod(String repairMethod) {
+        this.repairMethod = repairMethod;
+    }
+
+    public String getRepairNote() {
+        return repairNote;
+    }
+
+    public void setRepairNote(String repairNote) {
+        this.repairNote = repairNote;
+    }
+
     public void setId(Long id) 
     {
         this.id = id;

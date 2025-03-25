@@ -58,4 +58,14 @@ public interface WorkOrdersMapper
      * @return 结果
      */
     public int deleteWorkOrdersByIds(Long[] ids);
+
+    /**
+     * 上传维修信息
+     */
+    int uploadRepairInfo(WorkOrders workOrders);
+
+    /**
+     * 查询维修信息
+     */
+    WorkOrders selectRepairInfoById(Long id);
 }

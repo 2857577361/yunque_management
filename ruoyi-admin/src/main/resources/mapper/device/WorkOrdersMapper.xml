@@ -3,17 +3,20 @@
 PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.device.mapper.WorkOrdersMapper">
-    
+
     <resultMap type="WorkOrders" id="WorkOrdersResult">
-        <result property="id"    column="id"    />
-        <result property="workOrderId"    column="work_order_id"    />
-        <result property="deviceId"    column="device_id"    />
-        <result property="repairPerson"    column="repair_person"    />
-        <result property="repairLocation"    column="repair_location"    />
-        <result property="createDate"    column="create_date"    />
-        <result property="repairContent"    column="repair_content"    />
-        <result property="repairCompletionDate"    column="repair_completion_date"    />
-        <result property="repairStatus"    column="repair_status"    />
+        <result property="id" column="id" />
+        <result property="workOrderId" column="work_order_id" />
+        <result property="deviceId" column="device_id" />
+        <result property="repairPerson" column="repair_person" />
+        <result property="repairLocation" column="repair_location" />
+        <result property="createDate" column="create_date" />
+        <result property="repairContent" column="repair_content" />
+        <result property="repairCompletionDate" column="repair_completion_date" />
+        <result property="repairStatus" column="repair_status" />
+        <result property="faultType" column="fault_type" />
+        <result property="repairMethod" column="repair_method" />
+        <result property="repairNote" column="repair_note" />
     </resultMap>
 
     <sql id="selectWorkOrdersVo">
@@ -34,6 +37,22 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectWorkOrdersById" parameterType="Long" resultMap="WorkOrdersResult">
         <include refid="selectWorkOrdersVo"/>
         where id = #{id}
+    </select>
+
+    <update id="uploadRepairInfo" parameterType="WorkOrders">
+        UPDATE work_orders
+        <set>
+            <if test="faultType != null and faultType != ''">fault_type = #{faultType},</if>
+            <if test="repairMethod != null and repairMethod != ''">repair_method = #{repairMethod},</if>
+            <if test="repairNote != null and repairNote != ''">repair_note = #{repairNote},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <select id="selectRepairInfoById" parameterType="Long" resultMap="WorkOrdersResult">
+        SELECT fault_type, repair_method, repair_note
+        FROM work_orders
+        WHERE id = #{id}
     </select>
 
     <insert id="insertWorkOrders" parameterType="WorkOrders" useGeneratedKeys="true" keyProperty="id">
