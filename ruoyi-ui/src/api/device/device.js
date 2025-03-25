@@ -8,6 +8,14 @@ export function listDevice(query) {
     params: query
   })
 }
+export function listDeviceByRole(query) {
+  console.log(query)
+  return request({
+    url: '/device/device/listByRoleAndDept',
+    method: 'get',
+    params: query
+  })
+}
 export function listDept() {
   return request({
     url: '/system/dept/names?parentId=101',
@@ -27,6 +35,8 @@ export function getDevice(id) {
     method: 'get'
   })
 }
+
+
 
 // 新增设备列表
 export function addDevice(data) {

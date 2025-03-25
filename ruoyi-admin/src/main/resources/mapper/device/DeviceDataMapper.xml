@@ -42,6 +42,67 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where id = #{id}
     </select>
 
+    <!-- 查询所有设备列表 -->
+    <select id="selectAllDeviceData" resultType="com.ruoyi.device.domain.DeviceData" resultMap="DeviceDataResult">
+        SELECT * FROM device_data
+        <where>
+            <if test="deviceData.deviceId != null and deviceData.deviceId != ''">
+                AND device_id LIKE CONCAT('%', #{deviceData.deviceId}, '%')
+            </if>
+            <if test="deviceData.responsiblePerson != null  and deviceData.responsiblePerson != ''"> and responsible_person like concat('%', #{deviceData.responsiblePerson}, '%')</if>
+            <if test="deviceData.params.beginWarrantyTime != null and deviceData.params.beginWarrantyTime != '' and deviceData.params.endWarrantyTime != null and deviceData.params.endWarrantyTime != ''"> and warranty_time between #{deviceData.params.beginWarrantyTime} and #{deviceData.params.endWarrantyTime}</if>
+            <if test="deviceData.status != null  and deviceData.status != ''"> and status = #{deviceData.status}</if>
+        </where>
+    </select>
+
+    <!-- 根据 owner_id 查询设备列表 -->
+    <select id="selectDeviceDataByOwnerId" resultType="com.ruoyi.device.domain.DeviceData" resultMap="DeviceDataResult">
+        SELECT * FROM device_data WHERE owner_id = #{ownerId}
+    </select>
+
+    <!-- 根据省份和 isOpened 查询设备列表 -->
+    <select id="selectDeviceDataByProvinceAndIsOpened" resultType="com.ruoyi.device.domain.DeviceData" resultMap="DeviceDataResult">
+        SELECT * FROM device_data
+        <where>
+            province = #{province}
+            AND (is_opened = #{isOpened} OR is_opened IS NULL)
+            <if test="deviceData.deviceId != null and deviceData.deviceId != ''">
+                AND device_id LIKE CONCAT('%', #{deviceData.deviceId}, '%')
+            </if>
+            <if test="deviceData.responsiblePerson != null  and deviceData.responsiblePerson != ''"> and responsible_person like concat('%', #{deviceData.responsiblePerson}, '%')</if>
+            <if test="deviceData.params.beginWarrantyTime != null and deviceData.params.beginWarrantyTime != '' and deviceData.params.endWarrantyTime != null and deviceData.params.endWarrantyTime != ''"> and warranty_time between #{deviceData.params.beginWarrantyTime} and #{deviceData.params.endWarrantyTime}</if>
+            <if test="deviceData.status != null  and deviceData.status != ''"> and status = #{deviceData.status}</if>
+        </where>
+    </select>
+
+    <select id="selectDeviceDataByCityAndIsOpened" resultType="com.ruoyi.device.domain.DeviceData" resultMap="DeviceDataResult">
+        SELECT * FROM device_data
+        <where>
+            city = #{city}
+            AND (is_opened = #{isOpened} OR is_opened IS NULL)
+            <if test="deviceData.deviceId != null and deviceData.deviceId != ''">
+                AND device_id LIKE CONCAT('%', #{deviceData.deviceId}, '%')
+            </if>
+            <if test="deviceData.responsiblePerson != null  and deviceData.responsiblePerson != ''"> and responsible_person like concat('%', #{deviceData.responsiblePerson}, '%')</if>
+            <if test="deviceData.params.beginWarrantyTime != null and deviceData.params.beginWarrantyTime != '' and deviceData.params.endWarrantyTime != null and deviceData.params.endWarrantyTime != ''"> and warranty_time between #{deviceData.params.beginWarrantyTime} and #{deviceData.params.endWarrantyTime}</if>
+            <if test="deviceData.status != null  and deviceData.status != ''"> and status = #{deviceData.status}</if>
+        </where>
+    </select>
+
+    <select id="selectDeviceDataByDistrictAndIsOpened" resultType="com.ruoyi.device.domain.DeviceData" resultMap="DeviceDataResult">
+        SELECT * FROM device_data
+        <where>
+            district = #{district}
+            AND (is_opened = #{isOpened} OR is_opened IS NULL)
+            <if test="deviceData.deviceId != null and deviceData.deviceId != ''">
+                AND device_id LIKE CONCAT('%', #{deviceData.deviceId}, '%')
+            </if>
+            <if test="deviceData.responsiblePerson != null  and deviceData.responsiblePerson != ''"> and responsible_person like concat('%', #{deviceData.responsiblePerson}, '%')</if>
+            <if test="deviceData.params.beginWarrantyTime != null and deviceData.params.beginWarrantyTime != '' and deviceData.params.endWarrantyTime != null and deviceData.params.endWarrantyTime != ''"> and warranty_time between #{deviceData.params.beginWarrantyTime} and #{deviceData.params.endWarrantyTime}</if>
+            <if test="deviceData.status != null  and deviceData.status != ''"> and status = #{deviceData.status}</if>
+        </where>
+    </select>
+
     <insert id="insertDeviceData" parameterType="DeviceData" useGeneratedKeys="true" keyProperty="id">
         insert into device_data
         <trim prefix="(" suffix=")" suffixOverrides=",">

@@ -6,4 +6,6 @@ public interface IUserService {
     User getUserByUsername(String username);
     Long createUser(User user);
     User getUserByDeptNameAndType(String deptName, String deptType);
+
+    Long getUserIdByDeptNameAndType(String deptName, String deptType);
 }

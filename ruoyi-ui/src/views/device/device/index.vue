@@ -94,7 +94,20 @@
           <span>{{ parseTime(scope.row.warrantyTime, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="状态" align="center" prop="status" />
+<!--      <el-table-column label="状态" align="center" prop="status" />-->
+      <el-table-column label="状态" align="center" prop="status">
+        <template slot-scope="scope">
+          <el-tag :type="scope.row.status === '运行中' ? 'success' : 'danger'" style="border-radius: 50%; margin-right: 5px">
+          {{scope.row.status}}
+        </el-tag>
+          <el-switch
+            v-model="scope.row.status"
+            active-value="运行中"
+            inactive-value="已停用"
+            @change="handleStatusChange(scope.row)"
+          ></el-switch>
+        </template>
+      </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -190,7 +203,7 @@
             />
           </el-form-item>
         </template>
-        <el-form-item label="拥有者类型">
+        <el-form-item label="拥有者类型" prop="deptType">
           <el-select v-model="form.deptType" placeholder="请选择拥有者类型" @change="handleOwnerTypeChange">
             <el-option label="私有企业" value="private"></el-option>
             <el-option label="国有地区管理" value="state"></el-option>
@@ -199,12 +212,12 @@
 
         <!-- 私有企业的动态表单 -->
         <div v-if="form.deptType === 'private'">
-          <el-form-item label="拥有者名称">
+          <el-form-item label="拥有者名称" prop="deptName">
             <el-select v-model="form.deptName" placeholder="请选择拥有者名称">
               <el-option v-for="(item,index) in deptOptions" :key="index" :label="item" :value="item"></el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="是否公开">
+          <el-form-item label="是否公开" prop="isOpened">
             <el-select v-model="form.isOpened" placeholder="请选择是否公开">
               <el-option label="是" value="true"></el-option>
               <el-option label="否" value="false"></el-option>
@@ -221,7 +234,7 @@
 </template>
 
 <script>
-import { listDevice, getDevice, delDevice, addDevice, updateDevice, listCity, listDept } from "@/api/device/device";
+import { listDevice, getDevice, delDevice, addDevice, updateDevice, listCity, listDept, listDeviceByRole } from "@/api/device/device";
 import { getOwner } from "@/api/device/owner";
 
 export default {
@@ -264,6 +277,10 @@ export default {
         { label: '外国', value: 'FRN' }
       ],
       regionOptions: [],
+      user: {
+        deptName: '',
+        roleName: ''
+      },
       form: {},
       // 表单参数
       // form: {},
@@ -300,23 +317,54 @@ export default {
     };
   },
   created() {
+    this.user.roleName = this.$store.state.user.roleName;
+    this.user.deptName = this.$store.state.user.deptName;
     this.getList();
   },
   async mounted() {
     const res = await listCity()
     const deptRes = await listDept()
-    console.log(res)
     this.regionOptions = res
     this.deptOptions = deptRes
-    console.log(this.regionOptions)
   },
   methods: {
+    handleStatusChange(row) {
+      this.$modal.confirm('确认要切换状态吗？').then(() => {
+        this.reset();
+        const id = row.id || this.ids;
+        getDevice(id).then(async response => {
+          this.form.id = response.data.id;
+          this.form.address = response.data.address;
+          this.form.coordinates = response.data.coordinates;
+          this.form.department = response.data.department;
+          this.form.responsiblePerson = response.data.responsiblePerson;
+          this.form.alarmPhone = response.data.alarmPhone;
+          this.form.warrantyTime = response.data.warrantyTime;
+          this.form.deviceId = response.data.deviceId;
+          this.form.status = row.status;
+          await this.getUserDetails(row.ownerId);
+          this.form.isOpened = row.isOpened ? "true" : "false";
+          if (this.form.id != null) {
+            updateDevice(this.form).then(response => {
+              this.$modal.msgSuccess("修改成功");
+              this.open = false;
+              this.getList();
+            });
+          }
+        });
+      }).catch(() => {
+        this.getList();
+        // 用户取消操作
+        this.$modal.msgInfo("已取消状态切换");
+      });
+    },
     handleOwnerTypeChange(value) {
       // 清空私有企业的相关字段
       if (value !== 'private') {
         this.form.deptName = '';
         this.form.isOpened = '';
       }
+      console.log(value)
     },
     handleCountryChange(value) {
       if (value === 'CN') {
@@ -329,11 +377,16 @@ export default {
     getList() {
       this.loading = true;
       this.queryParams.params = {};
+      console.log(this.user);
+      console.log(this.user.roleName);
+      this.queryParams.roleName= this.user.roleName;
+      this.queryParams.deptName= this.user.deptName ? this.user.deptName : "陕西省";
       if (null != this.daterangeWarrantyTime && '' != this.daterangeWarrantyTime) {
         this.queryParams.params["beginWarrantyTime"] = this.daterangeWarrantyTime[0];
         this.queryParams.params["endWarrantyTime"] = this.daterangeWarrantyTime[1];
       }
-      listDevice(this.queryParams).then(response => {
+      console.log(this.queryParams);
+      listDeviceByRole(this.queryParams).then(response => {
         this.deviceList = response.rows;
         this.total = response.total;
         this.loading = false;
@@ -404,7 +457,14 @@ export default {
       this.reset();
       const id = row.id || this.ids
       getDevice(id).then(async response => {
-        this.form = response.data;
+        this.form.id = response.data.id;
+        this.form.address = response.data.address;
+        this.form.coordinates = response.data.coordinates;
+        this.form.department = response.data.department;
+        this.form.responsiblePerson = response.data.responsiblePerson;
+        this.form.alarmPhone = response.data.alarmPhone;
+        this.form.warrantyTime = response.data.warrantyTime;
+        this.form.deviceId = response.data.deviceId;
         await this.getUserDetails(row.ownerId);
         this.form.isOpened = row.isOpened ? "true" : "false";
         this.isAdd = false;
@@ -414,11 +474,12 @@ export default {
     },
     /** 提交按钮 */
     submitForm() {
+      console.log(this.form);
       this.$refs["form"].validate(valid => {
         if (valid) {
+          console.log('111111111111111');
           if (this.form.id != null) {
             updateDevice(this.form).then(response => {
-              console.log(this.form)
               this.$modal.msgSuccess("修改成功");
               this.open = false;
               this.getList();

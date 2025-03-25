@@ -26,4 +26,13 @@ public class UserServiceImpl implements IUserService {
     public User getUserByDeptNameAndType(String deptName, String deptType) {
         return userMapper.selectUserByDeptNameAndType(deptName, deptType);
     }
+
+
+    /**
+     * 根据部门名称和类型查询用户ID
+     */
+    @Override
+    public Long getUserIdByDeptNameAndType(String deptName, String deptType) {
+        return userMapper.getUserIdByDeptNameAndType(deptName, deptType);
+    }
 }

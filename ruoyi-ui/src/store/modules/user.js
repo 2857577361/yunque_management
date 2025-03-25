@@ -10,7 +10,9 @@ const user = {
     name: '',
     avatar: '',
     roles: [],
-    permissions: []
+    permissions: [],
+    roleName: '',
+    deptName: ''
   },
 
   mutations: {
@@ -31,6 +33,12 @@ const user = {
     },
     SET_PERMISSIONS: (state, permissions) => {
       state.permissions = permissions
+    },
+    SET_ROLE_NAME: (state, roleName) => {
+      state.roleName = roleName
+    },
+    SET_DEPT_NAME: (state, deptName) => {
+      state.deptName = deptName
     }
   },
 
@@ -57,6 +65,9 @@ const user = {
       return new Promise((resolve, reject) => {
         getInfo().then(res => {
           const user = res.user
+          console.log(user)
+          commit('SET_ROLE_NAME', user.roles[0].roleName)
+          commit('SET_DEPT_NAME', user.dept.deptName)
           let avatar = user.avatar || ""
           if (!isHttp(avatar)) {
             avatar = (isEmpty(avatar)) ? defAva : process.env.VUE_APP_BASE_API + avatar

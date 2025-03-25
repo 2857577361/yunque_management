@@ -50,6 +50,25 @@ public class DeviceDataServiceImpl implements IDeviceDataService
         return deviceDataMapper.selectDeviceDataList(deviceData);
     }
 
+    @Override
+    public List<DeviceData> selectDeviceDataByRoleAndDept(String roleName, String deptName, DeviceData deviceData) {
+        if ("超级管理员".equals(roleName)) {
+            return deviceDataMapper.selectAllDeviceData(deviceData);
+        } else if ("私有企业管理员".equals(roleName)) {
+            Long ownerId = userService.getUserIdByDeptNameAndType(deptName, "private");
+            return deviceDataMapper.selectDeviceDataByOwnerId(ownerId);
+        } else if ("省管理员".equals(roleName) || "市管理员".equals(roleName) || "县管理员".equals(roleName)) {
+            if ("省管理员".equals(roleName)) {
+                return deviceDataMapper.selectDeviceDataByProvinceAndIsOpened(deptName, true, deviceData);
+            } else if ("市管理员".equals(roleName)) {
+                return deviceDataMapper.selectDeviceDataByCityAndIsOpened(deptName, true, deviceData);
+            } else if ("县管理员".equals(roleName)) {
+                return deviceDataMapper.selectDeviceDataByDistrictAndIsOpened(deptName, true, deviceData);
+            }
+        }
+        return null;
+    }
+
     /**
      * 新增设备列表
      * 

@@ -28,6 +28,11 @@ public interface IDeviceDataService
     public List<DeviceData> selectDeviceDataList(DeviceData deviceData);
 
     /**
+            * 根据角色和部门查询设备列表
+     */
+    List<DeviceData> selectDeviceDataByRoleAndDept(String roleName, String deptName, DeviceData deviceData);
+
+    /**
      * 新增设备列表
      * 
      * @param deviceDataUpdateDTO 设备列表

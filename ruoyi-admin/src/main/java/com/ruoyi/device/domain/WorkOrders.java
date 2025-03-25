@@ -11,7 +11,7 @@ import com.ruoyi.common.core.domain.BaseEntity;
  * 工单对象 work_orders
  * 
  * @author ruoyi
- * @date 2025-03-22
+ * @date 2025-03-24
  */
 public class WorkOrders extends BaseEntity
 {
@@ -41,14 +41,17 @@ public class WorkOrders extends BaseEntity
     @Excel(name = "创建日期", width = 30, dateFormat = "yyyy-MM-dd")
     private Date createDate;
 
-    /** 质保时间 */
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    @Excel(name = "质保时间", width = 30, dateFormat = "yyyy-MM-dd")
-    private Date warrantyTime;
-
     /** 检修内容 */
     @Excel(name = "检修内容")
     private String repairContent;
+
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private Date repairCompletionDate;
+
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String repairStatus;
 
     public void setId(Long id) 
     {
@@ -104,15 +107,6 @@ public class WorkOrders extends BaseEntity
     {
         return createDate;
     }
-    public void setWarrantyTime(Date warrantyTime) 
-    {
-        this.warrantyTime = warrantyTime;
-    }
-
-    public Date getWarrantyTime() 
-    {
-        return warrantyTime;
-    }
     public void setRepairContent(String repairContent) 
     {
         this.repairContent = repairContent;
@@ -121,6 +115,24 @@ public class WorkOrders extends BaseEntity
     public String getRepairContent() 
     {
         return repairContent;
+    }
+    public void setRepairCompletionDate(Date repairCompletionDate) 
+    {
+        this.repairCompletionDate = repairCompletionDate;
+    }
+
+    public Date getRepairCompletionDate() 
+    {
+        return repairCompletionDate;
+    }
+    public void setRepairStatus(String repairStatus) 
+    {
+        this.repairStatus = repairStatus;
+    }
+
+    public String getRepairStatus() 
+    {
+        return repairStatus;
     }
 
     @Override
@@ -132,8 +144,9 @@ public class WorkOrders extends BaseEntity
             .append("repairPerson", getRepairPerson())
             .append("repairLocation", getRepairLocation())
             .append("createDate", getCreateDate())
-            .append("warrantyTime", getWarrantyTime())
             .append("repairContent", getRepairContent())
+            .append("repairCompletionDate", getRepairCompletionDate())
+            .append("repairStatus", getRepairStatus())
             .toString();
     }
 }
