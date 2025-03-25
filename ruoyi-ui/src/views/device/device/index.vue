@@ -97,13 +97,13 @@
 <!--      <el-table-column label="状态" align="center" prop="status" />-->
       <el-table-column label="状态" align="center" prop="status">
         <template slot-scope="scope">
-          <el-tag :type="scope.row.status === '运行中' ? 'success' : 'danger'" style="border-radius: 50%; margin-right: 5px">
+          <el-tag :type="scope.row.status === '运行中' ? 'success' : 'danger'" style="border-radius: 50%; margin-right: 5px" @click="addOrder(scope.row)">
           {{scope.row.status}}
         </el-tag>
           <el-switch
             v-model="scope.row.status"
             active-value="运行中"
-            inactive-value="已停用"
+            inactive-value="待维修"
             @change="handleStatusChange(scope.row)"
           ></el-switch>
         </template>
@@ -349,6 +349,7 @@ export default {
               this.$modal.msgSuccess("修改成功");
               this.open = false;
               this.getList();
+              // this.addOrder()
             });
           }
         });
@@ -357,6 +358,20 @@ export default {
         // 用户取消操作
         this.$modal.msgInfo("已取消状态切换");
       });
+    },
+    addOrder(row) {
+      if (row.status === '待维修'){
+      // console.log(row.status === '待维修');
+        this.$modal.confirm('是否跳转到维修工单创建页？').then(() => {
+          this.$router.push({
+            path: '/tool/orders',
+            query: {
+              deviceId: row.deviceId
+            }
+          })
+        }).catch(() => {
+      })
+      }
     },
     handleOwnerTypeChange(value) {
       // 清空私有企业的相关字段

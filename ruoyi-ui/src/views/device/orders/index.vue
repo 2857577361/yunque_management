@@ -199,11 +199,11 @@
     <!-- 添加/修改工单对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="工单ID" prop="workOrderId">
-          <el-input v-model="form.workOrderId" placeholder="请输入工单ID" />
-        </el-form-item>
+<!--        <el-form-item label="工单ID" prop="workOrderId">-->
+<!--          <el-input v-model="form.workOrderId" placeholder="请输入工单ID" />-->
+<!--        </el-form-item>-->
         <el-form-item label="设备ID" prop="deviceId">
-          <el-input v-model="form.deviceId" placeholder="请输入设备ID" />
+          <el-input v-model="form.deviceId" placeholder="请输入设备ID" :disabled="form.deviceId !== null" />
         </el-form-item>
         <el-form-item label="检修人员" prop="repairPerson">
           <el-input v-model="form.repairPerson" placeholder="请输入检修人员" />
@@ -308,8 +308,15 @@ export default {
       }
     };
   },
-  created() {
-    this.getList();
+  async created() {
+    await this.getList();
+  },
+  mounted() {
+    if (this.$route.query.deviceId) {
+      console.log(this.$route.query.deviceId);
+      this.handleAdd()
+      this.form.deviceId = this.$route.query.deviceId
+    }
   },
   methods: {
     /** 查询工单列表 */
@@ -360,6 +367,9 @@ export default {
     /** 新增按钮操作 */
     handleAdd() {
       this.reset();
+      if (this.$route.query.deviceId) {
+        this.form.deviceId = this.$route.query.deviceId;
+      }
       this.open = true;
       this.title = "添加工单";
     },
@@ -392,6 +402,12 @@ export default {
       })
     },
     /** 提交按钮 */
+
+    generateWorkOrderId() {
+      const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+      const randomNum = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+      return `WO${date}${randomNum}`;
+    },
     submitForm() {
       this.$refs["form"].validate(valid => {
         if (valid) {
@@ -405,6 +421,9 @@ export default {
               this.getList();
             });
           } else {
+            this.form.workOrderId = this.generateWorkOrderId();
+            // this.form.repairStatus = this.form.repairCompletionDate ? '已完成' : '进行中'
+            this.form.repairStatus = '进行中'
             addOrders(this.form).then(response => {
               this.$modal.msgSuccess("新增成功");
               this.open = false;
