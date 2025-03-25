@@ -163,6 +163,13 @@
               <el-button
                 size="mini"
                 type="text"
+                icon="el-icon-info"
+                @click="handleInfo(scope.row)"
+                v-hasPermi="['device:orders:edit']"
+              >详情</el-button>
+              <el-button
+                size="mini"
+                type="text"
                 icon="el-icon-edit"
                 @click="handleUpdate(scope.row)"
                 v-hasPermi="['device:orders:edit']"

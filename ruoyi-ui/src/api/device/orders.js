@@ -9,6 +9,21 @@ export function listOrders(query) {
   })
 }
 
+// 查询维修详情
+export function listOrdersDetail(id) {
+  return request({
+    url: `/device/orders/getRepairInfo/${id}`,
+    method: 'get'
+  })
+}
+export function upDateOrdersRepairDetail(query) {
+  return request({
+    url: 'device/orders/uploadRepairInfo',
+    method: 'put',
+    data: query
+  })
+}
+
 // 查询工单详细
 export function getOrders(id) {
   return request({
