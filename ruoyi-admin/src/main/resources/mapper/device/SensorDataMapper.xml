@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.device.mapper.SensorDataMapper">
+
+    <resultMap type="SensorData" id="SensorDataResult">
+        <result property="stationId" column="station_id" /> <!-- 确保字段名与数据库一致 -->
+        <result property="airTemperature" column="air_temperature" />
+        <result property="airHumidity" column="air_humidity" />
+        <result property="dewPointHumidity" column="dew_point_humidity" />
+        <result property="hourlyRainfall" column="hourly_rainfall" />
+        <result property="daylyRainfall" column="dayly_rainfall" />
+        <result property="wettingTimeOfLeafSurface" column="wetting_time_of_leaf_surface" />
+        <result property="hoursSunshine" column="hours_sunshine" />
+        <result property="n1SoilWaterContent" column="n1_soil_water_content" />
+        <result property="n2SoilWaterContent" column="n2_soil_water_content" />
+        <result property="n3SoilWaterContent" column="n3_soil_water_content" />
+        <result property="n4SoilWaterContent" column="n4_soil_water_content" />
+        <result property="n5SoilWaterContent" column="n5_soil_water_content" />
+    </resultMap>
+
+    <select id="selectClimateDataByDeviceIds" resultType="SensorData">
+        SELECT
+        station_id AS stationId,
+        air_temperature AS airTemperature,
+        air_humidity AS airHumidity,
+        dew_point_humidity AS dewPointHumidity,
+        hourly_rainfall AS hourlyRainfall,
+        dayly_rainfall AS daylyRainfall,
+        wetting_time_of_leaf_surface AS wettingTimeOfLeafSurface,
+        hours_sunshine AS hoursSunshine,
+        n1_soil_water_content AS n1SoilWaterContent,
+        n2_soil_water_content AS n2SoilWaterContent,
+        n3_soil_water_content AS n3SoilWaterContent,
+        n4_soil_water_content AS n4SoilWaterContent,
+        n5_soil_water_content AS n5SoilWaterContent,
+        collect_time AS collectTime,
+        upload_time AS uploadTime
+        FROM
+        sensor_data
+        WHERE
+        station_id IN
+        <foreach collection="deviceIds" item="deviceId" open="(" separator="," close=")">
+            #{deviceId}
+        </foreach>
+        <if test="startCollectTime != null">
+            AND collect_time &gt;= #{startCollectTime}
+        </if>
+        <if test="endCollectTime != null">
+            AND collect_time &lt;= #{endCollectTime}
+        </if>
+        <if test="startUploadTime != null">
+            AND upload_time &gt;= #{startUploadTime}
+        </if>
+        <if test="endUploadTime != null">
+            AND upload_time &lt;= #{endUploadTime}
+        </if>
+    </select>
+
+</mapper>

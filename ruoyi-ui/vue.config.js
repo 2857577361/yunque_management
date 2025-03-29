@@ -56,7 +56,8 @@ module.exports = {
     name: name,
     resolve: {
       alias: {
-        '@': resolve('src')
+        '@': resolve('src'),
+        echarts$: 'echarts/dist/echarts.min.js'
       }
     },
     plugins: [

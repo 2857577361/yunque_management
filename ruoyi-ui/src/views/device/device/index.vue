@@ -392,15 +392,12 @@ export default {
     getList() {
       this.loading = true;
       this.queryParams.params = {};
-      console.log(this.user);
-      console.log(this.user.roleName);
       this.queryParams.roleName= this.user.roleName;
       this.queryParams.deptName= this.user.deptName ? this.user.deptName : "陕西省";
       if (null != this.daterangeWarrantyTime && '' != this.daterangeWarrantyTime) {
         this.queryParams.params["beginWarrantyTime"] = this.daterangeWarrantyTime[0];
         this.queryParams.params["endWarrantyTime"] = this.daterangeWarrantyTime[1];
       }
-      console.log(this.queryParams);
       listDeviceByRole(this.queryParams).then(response => {
         this.deviceList = response.rows;
         this.total = response.total;

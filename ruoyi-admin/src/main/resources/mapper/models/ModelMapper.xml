@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.models.mapper.ModelMapper">
+
+    <resultMap type="Model" id="ModelResult">
+        <result property="modelId" column="model_id"/>
+        <result property="modelName" column="model_name"/>
+        <result property="formulaDefinition" column="formula_definition"/>
+        <result property="startPredictionTime" column="start_prediction_time"/>
+        <result property="endPredictionTime" column="end_prediction_time"/>
+        <result property="errorRange" column="error_range"/>
+    </resultMap>
+
+    <sql id="selectModelVo">
+        select model_id, model_name, formula_definition, start_prediction_time, end_prediction_time, error_range from model
+    </sql>
+
+    <select id="selectModelList" parameterType="Model" resultMap="ModelResult">
+        <include refid="selectModelVo"/>
+        <where>
+            <if test="modelName != null and modelName != ''"> and model_name like concat('%', #{modelName}, '%')</if>
+            <if test="formulaDefinition != null and formulaDefinition != ''"> and formula_definition like concat('%', #{formulaDefinition}, '%')</if>
+            <if test="params.beginStartPredictionTime != null and params.beginStartPredictionTime != '' and params.endStartPredictionTime != null and params.endStartPredictionTime != ''">
+                and start_prediction_time between #{params.beginStartPredictionTime} and #{params.endStartPredictionTime}
+            </if>
+            <if test="params.beginEndPredictionTime != null and params.beginEndPredictionTime != '' and params.endEndPredictionTime != null and params.endEndPredictionTime != ''">
+                and end_prediction_time between #{params.beginEndPredictionTime} and #{params.endEndPredictionTime}
+            </if>
+            <if test="errorRange != null"> and error_range = #{errorRange}</if>
+        </where>
+    </select>
+
+    <select id="selectModelById" parameterType="Long" resultMap="ModelResult">
+        <include refid="selectModelVo"/>
+        where model_id = #{modelId}
+    </select>
+
+    <select id="selectDeviceIdsByModelId" parameterType="Long" resultType="String">
+        select d.device_id from device_data d
+                                    join prediction p on d.device_id = p.device_id
+                                    join disease_model_relation dmr on p.disease_id = dmr.disease_id
+        where dmr.model_id = #{modelId}
+        group by d.device_id
+    </select>
+
+    <insert id="insertModel" parameterType="Model" useGeneratedKeys="true" keyProperty="modelId">
+        insert into model
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="modelName != null and modelName != ''">model_name,</if>
+            <if test="formulaDefinition != null and formulaDefinition != ''">formula_definition,</if>
+            <if test="startPredictionTime != null">start_prediction_time,</if>
+            <if test="endPredictionTime != null">end_prediction_time,</if>
+            <if test="errorRange != null">error_range,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="modelName != null and modelName != ''">#{modelName},</if>
+            <if test="formulaDefinition != null and formulaDefinition != ''">#{formulaDefinition},</if>
+            <if test="startPredictionTime != null">#{startPredictionTime},</if>
+            <if test="endPredictionTime != null">#{endPredictionTime},</if>
+            <if test="errorRange != null">#{errorRange},</if>
+        </trim>
+    </insert>
+
+    <update id="updateModel" parameterType="Model">
+        update model
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="modelName != null and modelName != ''">model_name = #{modelName},</if>
+            <if test="formulaDefinition != null and formulaDefinition != ''">formula_definition = #{formulaDefinition},</if>
+            <if test="startPredictionTime != null">start_prediction_time = #{startPredictionTime},</if>
+            <if test="endPredictionTime != null">end_prediction_time = #{endPredictionTime},</if>
+            <if test="errorRange != null">error_range = #{errorRange},</if>
+        </trim>
+        where model_id = #{modelId}
+    </update>
+
+    <delete id="deleteModelById" parameterType="Long">
+        delete from model where model_id = #{modelId}
+    </delete>
+
+    <delete id="deleteModelByIds" parameterType="Long">
+        delete from model where model_id in
+        <foreach item="modelId" collection="array" open="(" separator="," close=")">
+            #{modelId}
+        </foreach>
+    </delete>
+</mapper>
