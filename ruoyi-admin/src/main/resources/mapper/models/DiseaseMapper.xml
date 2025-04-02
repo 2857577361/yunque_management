@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.models.mapper.DiseaseMapper">
+
+    <resultMap type="com.ruoyi.models.domain.vo.DiseaseModelVo" id="DiseaseModelVoResult">
+        <result property="diseaseId" column="disease_id"/>
+        <result property="diseaseName" column="disease_name"/>
+        <collection property="modelList" ofType="com.ruoyi.models.domain.vo.DiseaseModelVo$ModelInfo">
+            <result property="modelId" column="model_id"/>
+            <result property="modelName" column="model_name"/>
+        </collection>
+    </resultMap>
+
+    <select id="selectDiseaseModelList" resultMap="DiseaseModelVoResult">
+        SELECT
+            d.disease_id,
+            d.disease_name,
+            m.model_id,
+            m.model_name
+        FROM disease d
+                 LEFT JOIN disease_model_relation dmr ON d.disease_id = dmr.disease_id
+                 LEFT JOIN model m ON dmr.model_id = m.model_id
+        ORDER BY d.disease_id, m.model_id
+    </select>
+
+</mapper>

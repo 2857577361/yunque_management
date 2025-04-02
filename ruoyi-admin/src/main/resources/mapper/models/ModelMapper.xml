@@ -21,6 +21,7 @@
         <include refid="selectModelVo"/>
         <where>
             <if test="modelName != null and modelName != ''"> and model_name like concat('%', #{modelName}, '%')</if>
+            <if test="modelId != null and modelId != ''"> and model_id like concat('%', #{modelId}, '%')</if>
             <if test="formulaDefinition != null and formulaDefinition != ''"> and formula_definition like concat('%', #{formulaDefinition}, '%')</if>
             <if test="params.beginStartPredictionTime != null and params.beginStartPredictionTime != '' and params.endStartPredictionTime != null and params.endStartPredictionTime != ''">
                 and start_prediction_time between #{params.beginStartPredictionTime} and #{params.endStartPredictionTime}
@@ -38,11 +39,11 @@
     </select>
 
     <select id="selectDeviceIdsByModelId" parameterType="Long" resultType="String">
-        select d.device_id from device_data d
-                                    join prediction p on d.device_id = p.device_id
-                                    join disease_model_relation dmr on p.disease_id = dmr.disease_id
-        where dmr.model_id = #{modelId}
-        group by d.device_id
+        <!-- 直接通过device_disease_model表关联获取设备ID -->
+        SELECT DISTINCT d.device_id
+        FROM device_disease_model dmr
+        INNER JOIN device_data d ON dmr.device_id = d.device_id
+        WHERE dmr.model_id = #{modelId}
     </select>
 
     <insert id="insertModel" parameterType="Model" useGeneratedKeys="true" keyProperty="modelId">

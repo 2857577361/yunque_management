@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.models.mapper.DeviceDiseaseModelMapper">
+
+    <resultMap id="DeviceDiseasePredictionResult" type="DeviceDiseasePredictionVo">
+        <result property="deviceId" column="device_id"/>
+        <result property="diseaseId" column="disease_id"/>
+        <result property="diseaseName" column="disease_name"/>
+        <result property="predictedValue" column="predicted_value"/>
+        <result property="actualValue" column="actual_value"/>
+        <result property="predictionDataTime" column="prediction_data_time"/>
+    </resultMap>
+
+    <resultMap id="DeviceDiseaseModelResult" type="DeviceDiseaseModelVo">
+        <result property="diseaseId" column="disease_id"/>
+        <result property="diseaseName" column="disease_name"/>
+        <result property="modelId" column="model_id"/>
+        <result property="modelName" column="model_name"/>
+        <result property="isPredictionEnabled" column="is_prediction_enabled"/>
+        <result property="area" column="area"/>
+    </resultMap>
+
+    <select id="selectDeviceDiseasePredictionList" resultMap="DeviceDiseasePredictionResult">
+        SELECT
+            p.device_id,
+            p.disease_id,
+            d.disease_name,
+            p.predicted_value,
+            p.actual_value,
+            p.prediction_data_time
+        FROM
+            prediction p
+                JOIN
+            disease d ON p.disease_id = d.disease_id
+    </select>
+
+    <select id="checkIsPredictionPeriod" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM device_disease_model
+        WHERE device_id = #{deviceId}
+          AND disease_id = #{diseaseId}
+          AND is_prediction_enabled = true
+    </select>
+
+    <select id="selectDeviceDiseaseModels" resultMap="DeviceDiseaseModelResult">
+        SELECT
+        d.disease_id,
+        d.disease_name,
+        m.model_id,
+        m.model_name,
+        dm.is_prediction_enabled,
+        dm.area  <!-- 新增area字段 -->
+        FROM
+        device_disease_model dm
+        JOIN
+        disease d ON dm.disease_id = d.disease_id
+        JOIN
+        model m ON dm.model_id = m.model_id
+        WHERE
+        dm.device_id = #{deviceId}
+    </select>
+
+    <delete id="deleteByDeviceId">
+        DELETE FROM device_disease_model WHERE device_id = #{deviceId}
+    </delete>
+
+    <insert id="batchInsertDeviceDiseaseModels">
+        INSERT INTO device_disease_model
+        ( device_id, disease_id, model_id, is_prediction_enabled)
+        VALUES
+        <foreach collection="diseaseModels" item="item" separator=",">
+            (#{deviceId}, #{item.diseaseId}, #{item.modelId}, true)
+        </foreach>
+    </insert>
+
+    <delete id="deleteByDeviceDisease">
+        DELETE FROM device_disease_model
+        WHERE device_id = #{deviceId}
+          AND disease_id = #{diseaseId}
+    </delete>
+
+    <delete id="deleteByDeviceDiseaseModel">
+        DELETE FROM device_disease_model
+        WHERE device_id = #{deviceId}
+          AND disease_id = #{diseaseId}
+          AND model_id = #{modelId}
+    </delete>
+</mapper>

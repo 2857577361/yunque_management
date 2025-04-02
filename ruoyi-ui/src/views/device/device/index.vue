@@ -124,6 +124,13 @@
             @click="handleDelete(scope.row)"
             v-hasPermi="['device:device:remove']"
           >删除</el-button>
+          <el-button
+            size="mini"
+            type="text"
+            icon="el-icon-info"
+            @click="handleInfo(scope.row)"
+            v-hasPermi="['device:device:edit']"
+          >详情</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -224,6 +231,11 @@
             </el-select>
           </el-form-item>
         </div>
+        <CascadeDiseaseModel
+          :device-id="this.form.deviceId"
+          @input="handleInput"
+          v-if="showComponent"
+        ></CascadeDiseaseModel>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="submitForm">确 定</el-button>
@@ -234,11 +246,14 @@
 </template>
 
 <script>
-import { listDevice, getDevice, delDevice, addDevice, updateDevice, listCity, listDept, listDeviceByRole } from "@/api/device/device";
+import { getDevice, delDevice, addDevice, updateDevice, listCity, listDept, listDeviceByRole } from "@/api/device/device";
 import { getOwner } from "@/api/device/owner";
-
+import { listDiseaseModel } from "@/api/model";
+import { updataDiseaseModelByDevideId } from "@/api/model";
+import CascadeDiseaseModel from "@/views/device/device/search.vue";
 export default {
   name: "Device",
+  components: {CascadeDiseaseModel},
   data() {
     return {
       // 遮罩层
@@ -281,10 +296,14 @@ export default {
         deptName: '',
         roleName: ''
       },
+      value: null,
       form: {},
       // 表单参数
       // form: {},
       // 表单校验
+
+      showComponent: null,
+      deviceId: null,
       rules: {
         deviceId: [
           { required: true, message: "设备ID不能为空", trigger: "blur" }
@@ -328,6 +347,44 @@ export default {
     this.deptOptions = deptRes
   },
   methods: {
+    handleInput(value) {
+      const result = {
+        deviceId: this.form.deviceId,
+        diseaseModels: []
+      }
+      value.forEach((item, index) => {
+        item.forEach((item2, index) => {
+          if (item2.includes('model')) {
+            const arr = item2.split('_');
+            const obj = {
+              diseaseId: +arr[1],
+              modelId: +arr[3],
+            }
+            result.diseaseModels.push(obj)
+          } else{
+            return null
+          }
+        })
+      })
+      console.log(result)
+      result.diseaseModels =  [...new Set(result.diseaseModels.map(item => JSON.stringify(item)))].map(item => JSON.parse(item));
+      this.value = result;
+    },
+    handleInfo(row) {
+      this.$router.push({
+        path: "/device/detail",
+        query: {
+          deviceId: row.deviceId,
+        }
+      });
+    },
+    async updataModel() {
+      try {
+        const res = updataDiseaseModelByDevideId(this.value);
+      } catch (e) {
+        console.log(e)
+      }
+    },
     handleStatusChange(row) {
       this.$modal.confirm('确认要切换状态吗？').then(() => {
         this.reset();
@@ -431,7 +488,7 @@ export default {
         deptName: null,
         deptType: null,
         region: null,
-        foreignAddress: null
+        foreignAddress: null,
       };
       this.resetForm("form");
     },
@@ -456,6 +513,7 @@ export default {
     handleAdd() {
       this.reset();
       this.isAdd = true;
+      this.reloadComponent()
       this.open = true;
       this.title = "添加设备列表";
     },
@@ -463,6 +521,19 @@ export default {
       const res = await getOwner(id);
       this.form.deptName = res.data.deptName;
       this.form.deptType = res.data.deptType;
+    },
+    reloadComponent() {
+      // 1. 先销毁组件
+      this.showComponent = false
+
+      // 2. 在下一个tick重新创建
+      this.$nextTick(() => {
+        this.showComponent = true
+      })
+
+      // 可选：重置数据
+      this.deviceId = this.form.deviceId // 或获取新的deviceId
+      // this.fetchData() // 如果需要重新获取数据
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
@@ -480,6 +551,7 @@ export default {
         await this.getUserDetails(row.ownerId);
         this.form.isOpened = row.isOpened ? "true" : "false";
         this.isAdd = false;
+        this.reloadComponent()
         this.open = true;
         this.title = "修改设备列表";
       });
@@ -489,9 +561,9 @@ export default {
       console.log(this.form);
       this.$refs["form"].validate(valid => {
         if (valid) {
-          console.log('111111111111111');
           if (this.form.id != null) {
             updateDevice(this.form).then(response => {
+              this.updataModel();
               this.$modal.msgSuccess("修改成功");
               this.open = false;
               this.getList();
@@ -499,6 +571,7 @@ export default {
           } else {
             this.form.region = this.form.region.toString();
             addDevice(this.form).then(response => {
+              this.updataModel();
               this.$modal.msgSuccess("新增成功");
               this.open = false;
               this.getList();

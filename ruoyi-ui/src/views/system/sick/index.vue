@@ -83,8 +83,12 @@
   </div>
 
 </template>
-
+import { listDevice } from '@/api/device/device';
+import { listDisease } from "@/api/disease/disease";
 <script>
+import {listDisease} from "@/api/disease/disease";
+import {listDevice} from "@/api/device/device";
+
 export default {
   data() {
     return {
@@ -112,6 +116,27 @@ export default {
         year: ''
       }
     }
+  },
+  async mounted() {
+    this.loading = true;
+    const res = await listDisease();
+    const device = await listDevice();
+    // this.deviceData = device.data;
+    console.log(device);
+    this.deviceData = res.rows;
+    this.deviceData = this.deviceData.map(item => {
+      for (let i = 0; i < device.rows.length; i++) {
+        if (device.rows[i].id === item.id) {
+          item.province = device.rows[i].province;
+          item.city = device.rows[i].city;
+          item.county = device.rows[i].district;
+          break;
+        }
+      }
+      return item;
+    })
+    this.loading = false;
+    console.log(this.deviceData);
   },
   methods: {
     calculateDeviation(row) {

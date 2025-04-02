@@ -33,39 +33,22 @@
           <!-- 设备号（不可编辑） -->
           <el-table-column prop="deviceId" label="设备号" align="center"></el-table-column>
 
-          <!-- 省（可编辑输入） -->
           <el-table-column label="省">
             <template slot-scope="{ row }">
-              <el-input
-                v-if="row.isEditing"
-                v-model="row.province"
-                size="mini"
-              ></el-input>
-              <span v-else>{{ row.province }}</span>
+              <span>{{ row.province }}</span>
             </template>
           </el-table-column>
 
-          <!-- 市（可编辑输入） -->
           <el-table-column label="市">
             <template slot-scope="{ row }">
-              <el-input
-                v-if="row.isEditing"
-                v-model="row.city"
-                size="mini"
-              ></el-input>
-              <span v-else>{{ row.city }}</span>
+              <span>{{ row.city }}</span>
             </template>
           </el-table-column>
 
-          <!-- 县（可编辑输入） -->
-          <el-table-column label="县">
+          <el-table-column
+            label="县">
             <template slot-scope="{ row }">
-              <el-input
-                v-if="row.isEditing"
-                v-model="row.county"
-                size="mini"
-              ></el-input>
-              <span v-else>{{ row.county }}</span>
+              <span>{{ row.district }}</span>
             </template>
           </el-table-column>
           <el-table-column label="病害名称">
@@ -92,34 +75,34 @@
                 <el-option label="预测中" value="预测中"></el-option>
                 <el-option label="已完成" value="已完成"></el-option>
               </el-select>
-              <el-tag v-else :type="getStatusTagType(row.status)">
-                {{ row.isPredictionPeriod === 0 ? '非预测期' : '预测期' }}
+              <el-tag v-else :type="getStatusTagType(row.isPredictionPeriod)">
+                {{ row.isPredictionPeriod ? '预测期' : '非预测期' }}
               </el-tag>
             </template>
           </el-table-column>
 
           <!-- 操作列（编辑/保存切换） -->
-          <el-table-column label="操作" width="150" align="center">
-            <template slot-scope="{ row }">
-              <el-button
-                v-if="!row.isEditing"
-                type="primary"
-                size="mini"
-                @click="startEdit(row)"
-              >编辑</el-button>
+          <!--          <el-table-column label="操作" width="150" align="center">-->
+          <!--            <template slot-scope="{ row }">-->
+          <!--              <el-button-->
+          <!--                v-if="!row.isEditing"-->
+          <!--                type="primary"-->
+          <!--                size="mini"-->
+          <!--                @click="startEdit(row)"-->
+          <!--              >编辑</el-button>-->
 
-              <div v-else>
-                <el-button
-                  size="mini"
-                  @click="saveEdit(row)"
-                >保存</el-button>
-                <el-button
-                  size="mini"
-                  @click="cancelEdit(row)"
-                >取消</el-button>
-              </div>
-            </template>
-          </el-table-column>
+          <!--              <div v-else>-->
+          <!--                <el-button-->
+          <!--                  size="mini"-->
+          <!--                  @click="saveEdit(row)"-->
+          <!--                >保存</el-button>-->
+          <!--                <el-button-->
+          <!--                  size="mini"-->
+          <!--                  @click="cancelEdit(row)"-->
+          <!--                >取消</el-button>-->
+          <!--              </div>-->
+          <!--            </template>-->
+          <!--          </el-table-column>-->
         </el-table>
         <el-pagination
           @size-change="handleSizeChange"
@@ -138,8 +121,8 @@
 </template>
 
 <script>
-// import { listDevice } from '@/api/device/device';
-// import { listDisease } from "@/api/disease/disease";
+import { listDevice } from '@/api/device/device';
+import { listDisease } from "@/api/disease/disease";
 export default {
   data() {
     return {
@@ -154,27 +137,29 @@ export default {
       deviceData: []
     };
   },
-  // async mounted() {
-  //   this.loading = true;
-  //   const res = await listDisease();
-  //   const device = await listDevice();
-  //   // this.deviceData = device.data;
-  //   console.log(device);
-  //   this.deviceData = res.rows;
-  //   this.deviceData = this.deviceData.map(item => {
-  //       for (let i = 0 ; i < device.rows.length; i++) {
-  //         if (device.rows[i].id === item.id) {
-  //           item.province = device.rows[i].province;
-  //           item.city = device.rows[i].city;
-  //           item.county = device.rows[i].district;
-  //           break;
-  //         }
-  //       }
-  //       return item;
-  //     })
-  //   this.loading = false;
-  //   console.log(this.deviceData);
-  // },
+  async mounted() {
+    this.loading = true;
+    const res = await listDisease();
+    const device = await listDevice({
+      pageSize: 100
+    });
+    // this.deviceData = device.data;
+    console.log(device);
+    this.deviceData = res.rows;
+    this.deviceData = this.deviceData.map(item => {
+      for (let i = 0; i < device.rows.length; i++) {
+        if (device.rows[i].deviceId === item.deviceId) {
+          item.province = device.rows[i].province;
+          item.city = device.rows[i].city;
+          item.district = device.rows[i].district;
+          break;
+        }
+      }
+      return item;
+    })
+    this.loading = false;
+    console.log(this.deviceData);
+  },
   methods: {
     handleSizeChange(newSize) {
       console.log(`每页 ${newSize} 条`, newSize);
@@ -183,25 +168,26 @@ export default {
       console.log(`当前页码 ${newPage}`, newPage);
     },
     startEdit(row) {
-      row.originalData = { ...row }; // 深拷贝原始数据
+      row.originalData = {...row}; // 深拷贝原始数据
       row.isEditing = true;
     },
 
     // 保存修改
-    saveEdit(row) {
-      row.isEditing = false;
-      // 此处可调用API保存数据
-      console.log('保存数据:', row);
-    },
-
-    // 取消修改
-    cancelEdit(row) {
-      Object.assign(row, row.originalData); // 恢复原始数据
-      row.isEditing = false;
-    },
+    // saveEdit(row) {
+    //   row.isEditing = false;
+    //   // 此处可调用API保存数据
+    //   console.log('保存数据:', row);
+    // },
+    //
+    // // 取消修改
+    // cancelEdit(row) {
+    //   Object.assign(row, row.originalData); // 恢复原始数据
+    //   row.isEditing = false;
+    // },
 
     // 状态标签样式
     getStatusTagType(status) {
+      status = status ? '预测期' : '非预测期';
       const map = {
         '非预测期': 'info',
         '预测中': 'warning',
@@ -224,31 +210,38 @@ export default {
 <style scoped>
 .model_title {
   padding: 20px 0 0 20px;
+
   span {
     font-weight: bold;
   }
 }
+
 .demo-form-inline {
   padding: 20px;
 }
+
 .model_form {
   padding-top: 20px;
   width: 100%;
-  box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1);
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
 }
+
 .model_button {
   width: 160px;
   margin-left: auto;
   margin-right: 0;
 }
+
 .table-card {
   margin: 0 20px 20px 20px;
   padding-bottom: 20px;
-  box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1);
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
 }
+
 .el-table {
   margin-top: 15px;
 }
+
 .el-tag {
   font-size: 14px;
   padding: 0 8px;
