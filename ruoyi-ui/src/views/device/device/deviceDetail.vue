@@ -11,25 +11,25 @@
         <el-descriptions-item label="设备ID">{{ deviceDetails.deviceId }}</el-descriptions-item>
         <el-descriptions-item label="设备位置">{{ deviceDetails.location || '未知' }}</el-descriptions-item>
         <el-descriptions-item label="设备状态">
-          <el-tag :type="deviceDetails.status === 'online' ? 'success' : 'danger'" size="small">
-            {{ deviceDetails.status === 'online' ? '在线' : '离线' }}
+          <el-tag :type="deviceDetails.status === '运行中' ? 'success' : 'danger'" size="small">
+            {{ deviceDetails.status === '运行中' ? '在线' : '离线' }}
           </el-tag>
         </el-descriptions-item>
-        <el-descriptions-item label="总检测面积">{{ totalDetectionArea }} m²</el-descriptions-item>
+        <el-descriptions-item label="总检测面积">{{ deviceDetails.totalArea }} m²</el-descriptions-item>
         <el-descriptions-item label="安装日期">{{ deviceInfo.installDate || '未知' }}</el-descriptions-item>
-        <el-descriptions-item label="最后检测时间">{{ deviceInfo.lastDetectionTime || '未知' }}</el-descriptions-item>
+        <el-descriptions-item label="质保时间">{{ deviceDetails.warrantyTime || '未知' }}</el-descriptions-item>
       </el-descriptions>
 
       <!-- 农作物检测面积表格 -->
       <div class="crop-table">
         <h4>农作物检测面积统计</h4>
         <el-table
-          :data="cropDetectionData"
+          :data="deviceDetails.cropDetails"
           border
           size="small"
           style="width: 100%; margin-top: 15px"
         >
-          <el-table-column prop="cropName" label="农作物名称" width="150" />
+          <el-table-column prop="crop_name" label="农作物名称" width="150" />
           <el-table-column prop="area" label="检测面积(m²)" min-width="120" />
           <el-table-column prop="lastDetectionTime" label="最后检测时间" min-width="220" />
           <el-table-column prop="diseaseCount" label="病害数量" width="180" />
@@ -206,7 +206,7 @@
 
 <script>
 import { listModelData, listDiseaseModel, delDeviceDiseaseModel } from "@/api/model";
-import { listDevice } from "@/api/device/device";
+import { listDevice, getDeviceArea } from "@/api/device/device";
 
 export default {
   name: 'DeviceDiseaseModel',
@@ -215,14 +215,8 @@ export default {
       deviceId: this.$route.query.deviceId || '',
       activeTab: 'diseases',
       loading: false,
-      deviceInfo: {
-        deviceId: '',
-        location: '',
-        status: '',
-        installDate: '',
-        lastDetectionTime: ''
-      },
       diseaseList: [],
+      deviceInfo: [],
       modelList: [],
       modelOptions: [],
       availableDiseases: [],
@@ -239,12 +233,32 @@ export default {
   },
   created() {
     this.getDeviceList()
+    // await this.getDeviceArea()
   },
   methods: {
+    async getDeviceArea() {
+      const res = await getDeviceArea(this.$route.query.deviceId);
+      this.deviceDetails.totalArea = res.data.totalArea;
+      const cropDetails = JSON.parse(res.data.cropDetails);
+      this.deviceDetails.cropDatas = cropDetails;
+      // this.deviceDetails.cropData = res.data.cropTypes.split(',').map((item) => {
+      //   return {
+      //     cropType: item,
+      //     detail: cropDetails.filter((ele) => {
+      //       return ele.crop_name === item
+      //     })[0],
+      //   }
+      // });
+      console.log(this.deviceDetails);
+    },
+
     async getDeviceList() {
       const res = await listDevice({
         deviceId: this.$route.query.deviceId
       });
+      const areaData = await getDeviceArea(this.$route.query.deviceId);
+      const totalArea = areaData.data.totalArea;
+      const cropDetails = JSON.parse(areaData.data.cropDetails);
 
       this.deviceDetails = await Promise.all(
         res.rows.map(async (device) => {
@@ -273,6 +287,8 @@ export default {
 
             return {
               ...device,
+              totalArea,
+              cropDetails,
               type: ["sensor", "camera", "gateway"][Math.floor(Math.random() * 3)],
               location: device.address || "未知地址",
               warrantyTime: device.warrantyTime || "未知",
@@ -284,6 +300,8 @@ export default {
             console.error(`获取设备 ${device.deviceId} 的病害模型失败:`, error);
             return {
               ...device,
+              totalArea,
+              cropDetails,
               type: ["sensor", "camera", "gateway"][Math.floor(Math.random() * 3)],
               location: device.address || "未知地址",
               warrantyTime: device.warrantyTime || "未知",
@@ -295,6 +313,7 @@ export default {
         })
       );
       this.deviceDetails = this.deviceDetails[0]
+      console.log(this.deviceDetails)
     },
     showAddDiseaseDialog() {
       if (this.availableDiseases.length === 0) {

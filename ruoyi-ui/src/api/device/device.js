@@ -37,6 +37,12 @@ export function listCity() {
     method: 'get'
   })
 }
+export function getDeviceArea(deviceId) {
+  return request({
+    url: `/device/area/${deviceId}`,
+    method: 'get'
+  })
+}
 // 查询设备列表详细
 export function getDevice(id) {
   return request({

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.device.mapper.DeviceAreaMapper">
+
+    <resultMap type="DeviceArea" id="DeviceAreaResult">
+        <result property="id" column="id"/>
+        <result property="deviceId" column="device_id"/>
+        <result property="totalArea" column="total_area"/>
+        <result property="cropTypes" column="crop_types"/>
+        <result property="cropDetails" column="crop_details"/>
+    </resultMap>
+
+    <sql id="selectDeviceAreaVo">
+        SELECT id, device_id, total_area, crop_types, crop_details
+        FROM device_area
+    </sql>
+
+    <select id="selectDeviceAreaList" resultMap="DeviceAreaResult">
+        <include refid="selectDeviceAreaVo"/>
+        <where>
+            <if test="deviceId != null and deviceId != ''">
+                AND device_id = #{deviceId}
+            </if>
+            <if test="cropType != null and cropType != ''">
+                AND crop_types LIKE CONCAT('%', #{cropType}, '%')
+            </if>
+            <if test="province != null or city != null or district != null">
+                AND device_id IN (
+                SELECT device_id FROM device_data
+                <where>
+                    <if test="province != null and province != ''">
+                        AND province = #{province}
+                    </if>
+                    <if test="city != null and city != ''">
+                        AND city = #{city}
+                    </if>
+                    <if test="district != null and district != ''">
+                        AND district = #{district}
+                    </if>
+                </where>
+                )
+            </if>
+        </where>
+    </select>
+
+    <select id="selectDeviceAreaByDeviceId" resultMap="DeviceAreaResult">
+        <include refid="selectDeviceAreaVo"/>
+        WHERE device_id = #{deviceId}
+    </select>
+</mapper>
