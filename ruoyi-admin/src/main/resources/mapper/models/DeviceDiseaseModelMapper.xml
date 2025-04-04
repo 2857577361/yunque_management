@@ -2,83 +2,197 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.models.mapper.DeviceDiseaseModelMapper">
 
-    <resultMap id="DeviceDiseasePredictionResult" type="DeviceDiseasePredictionVo">
+    <!-- 预测数据结果映射 -->
+    <resultMap type="DeviceDiseasePredictionVo" id="DeviceDiseasePredictionVoResult">
         <result property="deviceId" column="device_id"/>
         <result property="diseaseId" column="disease_id"/>
         <result property="diseaseName" column="disease_name"/>
         <result property="predictedValue" column="predicted_value"/>
         <result property="actualValue" column="actual_value"/>
         <result property="predictionDataTime" column="prediction_data_time"/>
+        <result property="predictedValueDescription" column="predicted_value_description"/>
+        <result property="selectedModelId" column="selected_model_id"/>
+        <result property="area" column="area"/>
     </resultMap>
 
-    <resultMap id="DeviceDiseaseModelResult" type="DeviceDiseaseModelVo">
+    <resultMap type="DeviceDiseasePrediction" id="DeviceDiseasePredictionResult">
+        <id property="id" column="id"/>
+        <result property="deviceId" column="device_id"/>
+        <result property="diseaseId" column="disease_id"/>
+        <result property="predictedValue" column="predicted_value"/>
+        <result property="actualValue" column="actual_value"/>
+        <result property="deviationValue" column="deviation_value"/>
+        <result property="predictedValueDescription" column="predicted_value_description"/>
+        <result property="selectedModelId" column="selected_model_id"/>
+        <result property="area" column="area"/>
+        <result property="predictionDataTime" column="prediction_data_time"/>
+        <result property="isPredictionPeriod" column="is_prediction_period"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+    <!-- 设备病害模型关联结果映射 -->
+    <resultMap type="DeviceDiseaseModelVo" id="DeviceDiseaseModelVoResult">
         <result property="diseaseId" column="disease_id"/>
         <result property="diseaseName" column="disease_name"/>
         <result property="modelId" column="model_id"/>
         <result property="modelName" column="model_name"/>
+        <result property="modelName" column="model_name"/>
         <result property="isPredictionEnabled" column="is_prediction_enabled"/>
         <result property="area" column="area"/>
+        <result property="diseaseSeries" column="disease_series"/>
+        <result property="diseaseDescription" column="disease_description"/>
+        <result property="predictionStartTime" column="prediction_start_time"/>
+        <result property="predictionEndTime" column="prediction_end_time"/>
     </resultMap>
 
-    <select id="selectDeviceDiseasePredictionList" resultMap="DeviceDiseasePredictionResult">
+    <!-- 查询预测数据列表 -->
+    <select id="selectDeviceDiseasePredictionList" resultMap="DeviceDiseasePredictionVoResult">
         SELECT
             p.device_id,
             p.disease_id,
             d.disease_name,
             p.predicted_value,
             p.actual_value,
-            p.prediction_data_time
-        FROM
-            prediction p
-                JOIN
-            disease d ON p.disease_id = d.disease_id
+            p.prediction_data_time,
+            p.predicted_value_description,
+            p.selected_model_id,
+            p.area
+        FROM prediction p
+                 LEFT JOIN disease d ON p.disease_id = d.disease_id
+        <where>
+            <if test="deviceId != null and deviceId != ''">
+                AND p.device_id = #{deviceId}
+            </if>
+            <if test="diseaseId != null">
+                AND p.disease_id = #{diseaseId}
+            </if>
+        </where>
     </select>
 
+    <select id="selectPredictionDetail" resultMap="DeviceDiseasePredictionResult">
+        SELECT * FROM prediction
+        WHERE device_id = #{deviceId} AND disease_id = #{diseaseId}
+    </select>
+
+    <!-- 新增预测数据 -->
+    <insert id="insertPrediction" parameterType="DeviceDiseasePrediction">
+        INSERT INTO prediction (
+            device_id, disease_id, predicted_value, actual_value,
+            predicted_value_description, selected_model_id, area, prediction_data_time,
+            is_prediction_period, create_time
+        ) VALUES (
+                     #{deviceId}, #{diseaseId}, #{predictedValue}, #{actualValue},
+                     #{predictedValueDescription}, #{selectedModelId}, #{area}, #{predictionDataTime},
+                     #{isPredictionPeriod}, #{createTime}
+                 )
+    </insert>
+
+    <!-- 修改预测数据 -->
+    <update id="updatePrediction" parameterType="DeviceDiseasePrediction">
+        UPDATE prediction
+        <set>
+            <if test="predictedValue != null">predicted_value = #{predictedValue},</if>
+            <if test="actualValue != null">actual_value = #{actualValue},</if>
+            <if test="predictedValueDescription != null">predicted_value_description = #{predictedValueDescription},</if>
+            <if test="selectedModelId != null">selected_model_id = #{selectedModelId},</if>
+            <if test="area != null">area = #{area},</if>
+            <if test="predictionDataTime != null">prediction_data_time = #{predictionDataTime},</if>
+            <if test="isPredictionPeriod != null">is_prediction_period = #{isPredictionPeriod},</if>
+            update_time = #{updateTime}
+        </set>
+        WHERE device_id = #{deviceId} AND disease_id = #{diseaseId}
+    </update>
+    <!-- 检查是否预测期 -->
     <select id="checkIsPredictionPeriod" resultType="boolean">
-        SELECT COUNT(*) > 0
+        SELECT COUNT(1) > 0
         FROM device_disease_model
         WHERE device_id = #{deviceId}
           AND disease_id = #{diseaseId}
-          AND is_prediction_enabled = true
+          AND is_prediction_enabled = 1
+          AND (prediction_start_time IS NULL OR prediction_start_time &lt;= NOW())
+          AND (prediction_end_time IS NULL OR prediction_end_time >= NOW())
     </select>
 
-    <select id="selectDeviceDiseaseModels" resultMap="DeviceDiseaseModelResult">
+    <!-- 查询设备病害模型关联 -->
+    <select id="selectDeviceDiseaseModels" resultMap="DeviceDiseaseModelVoResult">
         SELECT
-        d.disease_id,
-        d.disease_name,
-        m.model_id,
-        m.model_name,
-        dm.is_prediction_enabled,
-        dm.area  <!-- 新增area字段 -->
-        FROM
-        device_disease_model dm
-        JOIN
-        disease d ON dm.disease_id = d.disease_id
-        JOIN
-        model m ON dm.model_id = m.model_id
-        WHERE
-        dm.device_id = #{deviceId}
+            ddm.disease_id,
+            d.disease_name,
+            d.disease_description,
+            d.series as disease_series,
+            ddm.prediction_start_time,
+            ddm.prediction_end_time,
+            ddm.model_id,
+            m.model_name,
+            ddm.is_prediction_enabled,
+            ddm.area
+        FROM device_disease_model ddm
+                 LEFT JOIN disease d ON ddm.disease_id = d.disease_id
+                 LEFT JOIN model m ON ddm.model_id = m.model_id
+        WHERE ddm.device_id = #{deviceId}
     </select>
 
+    <!-- 删除设备所有关联 -->
     <delete id="deleteByDeviceId">
         DELETE FROM device_disease_model WHERE device_id = #{deviceId}
     </delete>
 
-    <insert id="batchInsertDeviceDiseaseModels">
-        INSERT INTO device_disease_model
-        ( device_id, disease_id, model_id, is_prediction_enabled)
-        VALUES
+    <!-- 批量插入关联关系 -->
+    <insert id="batchInsertDeviceDiseaseModels" parameterType="DeviceDiseaseModelRelation">
+        INSERT INTO device_disease_model (
+        device_id, disease_id, model_id, is_prediction_enabled,
+        prediction_start_time, prediction_end_time, area, create_time
+        ) VALUES
         <foreach collection="diseaseModels" item="item" separator=",">
-            (#{deviceId}, #{item.diseaseId}, #{item.modelId}, true)
+            (
+            #{deviceId}, #{item.diseaseId}, #{item.modelId},
+            #{item.isPredictionEnabled, jdbcType=BIT},
+            #{item.predictionStartTime, jdbcType=TIMESTAMP},
+            #{item.predictionEndTime, jdbcType=TIMESTAMP},
+            #{item.area, jdbcType=VARCHAR},
+            NOW()
+            )
         </foreach>
     </insert>
-
-    <delete id="deleteByDeviceDisease">
-        DELETE FROM device_disease_model
+    <!-- 检查记录是否存在 -->
+    <select id="existsDeviceDiseaseModel" resultType="boolean">
+        SELECT COUNT(1) > 0
+        FROM device_disease_model
         WHERE device_id = #{deviceId}
           AND disease_id = #{diseaseId}
+          AND model_id = #{modelId}
+    </select>
+
+    <!-- 选择性更新（不更新空值） -->
+    <update id="updateDeviceDiseaseModelSelective">
+        UPDATE device_disease_model
+        <set>
+            <if test="vo.isPredictionEnabled != null">
+                is_prediction_enabled = #{vo.isPredictionEnabled, jdbcType=BIT},
+            </if>
+            <if test="vo.predictionStartTime != null">
+                prediction_start_time = #{vo.predictionStartTime, jdbcType=TIMESTAMP},
+            </if>
+            <if test="vo.predictionEndTime != null">
+                prediction_end_time = #{vo.predictionEndTime, jdbcType=TIMESTAMP},
+            </if>
+            <if test="vo.area != null and vo.area != ''">
+                area = #{vo.area, jdbcType=VARCHAR},
+            </if>
+            update_time = NOW()
+        </set>
+        WHERE device_id = #{deviceId}
+        AND disease_id = #{diseaseId}
+        AND model_id = #{modelId}
+    </update>
+
+    <!-- 删除设备+病害关联 -->
+    <delete id="deleteByDeviceDisease">
+        DELETE FROM device_disease_model
+        WHERE device_id = #{deviceId} AND disease_id = #{diseaseId}
     </delete>
 
+    <!-- 删除设备+病害+模型关联 -->
     <delete id="deleteByDeviceDiseaseModel">
         DELETE FROM device_disease_model
         WHERE device_id = #{deviceId}

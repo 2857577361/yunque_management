@@ -8,8 +8,44 @@ public class DeviceDiseasePredictionVo {
     private Double predictedValue;
     private Double actualValue;
     private String predictionDataTime;
+    private String predictedValueDescription;
+    private Integer selectedModelId;
+    private String area;
 
     // getters and setters
+
+
+    public Boolean getPredictionPeriod() {
+        return isPredictionPeriod;
+    }
+
+    public void setPredictionPeriod(Boolean predictionPeriod) {
+        isPredictionPeriod = predictionPeriod;
+    }
+
+    public String getPredictedValueDescription() {
+        return predictedValueDescription;
+    }
+
+    public void setPredictedValueDescription(String predictedValueDescription) {
+        this.predictedValueDescription = predictedValueDescription;
+    }
+
+    public Integer getSelectedModelId() {
+        return selectedModelId;
+    }
+
+    public void setSelectedModelId(Integer selectedModelId) {
+        this.selectedModelId = selectedModelId;
+    }
+
+    public String getArea() {
+        return area;
+    }
+
+    public void setArea(String area) {
+        this.area = area;
+    }
 
     public String getDeviceId() {
         return deviceId;

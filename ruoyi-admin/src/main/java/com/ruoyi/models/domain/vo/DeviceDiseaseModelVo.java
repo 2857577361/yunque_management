@@ -1,25 +1,24 @@
 package com.ruoyi.models.domain.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import java.util.Date;
+
 public class DeviceDiseaseModelVo {
     private Integer diseaseId;
     private String diseaseName;
+    private String diseaseDescription;
+    private String diseaseSeries;
     private Integer modelId;
     private String modelName;
     private Boolean isPredictionEnabled;
-
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date predictionStartTime;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date predictionEndTime;
     private String area;
 
-    // getters and setters
-
-
-    public String getArea() {
-        return area;
-    }
-
-    public void setArea(String area) {
-        this.area = area;
-    }
-
+    // Getters and Setters
     public Integer getDiseaseId() {
         return diseaseId;
     }
@@ -34,6 +33,22 @@ public class DeviceDiseaseModelVo {
 
     public void setDiseaseName(String diseaseName) {
         this.diseaseName = diseaseName;
+    }
+
+    public String getDiseaseDescription() {
+        return diseaseDescription;
+    }
+
+    public void setDiseaseDescription(String diseaseDescription) {
+        this.diseaseDescription = diseaseDescription;
+    }
+
+    public String getDiseaseSeries() {
+        return diseaseSeries;
+    }
+
+    public void setDiseaseSeries(String diseaseSeries) {
+        this.diseaseSeries = diseaseSeries;
     }
 
     public Integer getModelId() {
@@ -52,11 +67,35 @@ public class DeviceDiseaseModelVo {
         this.modelName = modelName;
     }
 
-    public Boolean getPredictionEnabled() {
+    public Boolean getIsPredictionEnabled() {
         return isPredictionEnabled;
     }
 
-    public void setPredictionEnabled(Boolean predictionEnabled) {
+    public void setIsPredictionEnabled(Boolean predictionEnabled) {
         isPredictionEnabled = predictionEnabled;
+    }
+
+    public Date getPredictionStartTime() {
+        return predictionStartTime;
+    }
+
+    public void setPredictionStartTime(Date predictionStartTime) {
+        this.predictionStartTime = predictionStartTime;
+    }
+
+    public Date getPredictionEndTime() {
+        return predictionEndTime;
+    }
+
+    public void setPredictionEndTime(Date predictionEndTime) {
+        this.predictionEndTime = predictionEndTime;
+    }
+
+    public String getArea() {
+        return area;
+    }
+
+    public void setArea(String area) {
+        this.area = area;
     }
 }
