@@ -166,7 +166,6 @@ export default {
       // 合并已禁用的选项（保持它们始终被选中）
       this.selectedOptions = [...this.generateSelectedOptionsFromDisabled(), ...enabledOptions];
       this.$emit('input', this.selectedOptions);
-      console.log("选择变化:", this.selectedOptions);
     },
 
     // 从禁用选项中生成选中项（保持禁用项始终被选中）

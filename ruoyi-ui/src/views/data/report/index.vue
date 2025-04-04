@@ -143,7 +143,6 @@ export default {
       const response = await listDeviceByRole(this.queryParams);
       this.queryParams.pageSize = response.total;
       const response2 = await listDeviceByRole(this.queryParams);
-      console.log(response,'response');
       return response2;
     },
     // 获取设备ID列表
@@ -151,7 +150,6 @@ export default {
       this.user.roleName = this.$store.state.user.roleName;
       this.user.deptName = this.$store.state.user.deptName;
       const response = await this.getList();
-      console.log(response,'response2');
       this.deviceIds = response.rows.map(device => device.deviceId);
     },
     // 查询气候数据

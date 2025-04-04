@@ -65,7 +65,6 @@ const user = {
       return new Promise((resolve, reject) => {
         getInfo().then(res => {
           const user = res.user
-          console.log(user)
           commit('SET_ROLE_NAME', user.roles[0].roleName)
           commit('SET_DEPT_NAME', user.dept.deptName)
           let avatar = user.avatar || ""

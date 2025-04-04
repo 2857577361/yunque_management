@@ -32,6 +32,16 @@
 
           <!-- 设备号（不可编辑） -->
           <el-table-column prop="deviceId" label="设备号" align="center"></el-table-column>
+          <el-table-column label="病害名称">
+            <template slot-scope="{ row }">
+              <el-input
+                v-if="row.isEditing"
+                v-model="row.diseaseName"
+                size="mini"
+              ></el-input>
+              <span v-else>{{ row.diseaseName }}</span>
+            </template>
+          </el-table-column>
 
           <el-table-column label="省">
             <template slot-scope="{ row }">
@@ -51,14 +61,10 @@
               <span>{{ row.district }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="病害名称">
+          <el-table-column
+            label="监测面积(亩)">
             <template slot-scope="{ row }">
-              <el-input
-                v-if="row.isEditing"
-                v-model="row.diseaseName"
-                size="mini"
-              ></el-input>
-              <span v-else>{{ row.diseaseName }}</span>
+              <span>{{ row.area }}</span>
             </template>
           </el-table-column>
 
@@ -80,40 +86,15 @@
               </el-tag>
             </template>
           </el-table-column>
-
-          <!-- 操作列（编辑/保存切换） -->
-          <!--          <el-table-column label="操作" width="150" align="center">-->
-          <!--            <template slot-scope="{ row }">-->
-          <!--              <el-button-->
-          <!--                v-if="!row.isEditing"-->
-          <!--                type="primary"-->
-          <!--                size="mini"-->
-          <!--                @click="startEdit(row)"-->
-          <!--              >编辑</el-button>-->
-
-          <!--              <div v-else>-->
-          <!--                <el-button-->
-          <!--                  size="mini"-->
-          <!--                  @click="saveEdit(row)"-->
-          <!--                >保存</el-button>-->
-          <!--                <el-button-->
-          <!--                  size="mini"-->
-          <!--                  @click="cancelEdit(row)"-->
-          <!--                >取消</el-button>-->
-          <!--              </div>-->
-          <!--            </template>-->
-          <!--          </el-table-column>-->
         </el-table>
-        <el-pagination
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-          :current-page="currentPage"
-          :page-size="10"
-          :small="true"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="deviceData.length"
+        <pagination
+          v-show="total>0"
+          :page.sync="queryParams.pageNum"
+          :limit.sync="queryParams.pageSize"
+          @pagination="getList"
+          :total="total"
           style="float:right;">
-        </el-pagination>
+        </pagination>
       </el-card>
     </div>
   </div>
@@ -132,59 +113,42 @@ export default {
         startDate: '',
         endDate: '',
       },
-      currentPage: 1,
-      pageSize: 10,
-      deviceData: []
+      queryParams: {
+        pageNum: 1,
+        pageSize: 10
+      },
+      deviceData: [],
+      total: 0,
     };
   },
   async mounted() {
-    this.loading = true;
-    const res = await listDisease();
-    const device = await listDevice({
-      pageSize: 100
-    });
-    // this.deviceData = device.data;
-    console.log(device);
-    this.deviceData = res.rows;
-    this.deviceData = this.deviceData.map(item => {
-      for (let i = 0; i < device.rows.length; i++) {
-        if (device.rows[i].deviceId === item.deviceId) {
-          item.province = device.rows[i].province;
-          item.city = device.rows[i].city;
-          item.district = device.rows[i].district;
-          break;
-        }
-      }
-      return item;
-    })
-    this.loading = false;
-    console.log(this.deviceData);
+    await this.getList();
   },
   methods: {
-    handleSizeChange(newSize) {
-      console.log(`每页 ${newSize} 条`, newSize);
-    },
-    handleCurrentChange(newPage) {
-      console.log(`当前页码 ${newPage}`, newPage);
-    },
-    startEdit(row) {
-      row.originalData = {...row}; // 深拷贝原始数据
-      row.isEditing = true;
-    },
+    onSubmit() {
 
-    // 保存修改
-    // saveEdit(row) {
-    //   row.isEditing = false;
-    //   // 此处可调用API保存数据
-    //   console.log('保存数据:', row);
-    // },
-    //
-    // // 取消修改
-    // cancelEdit(row) {
-    //   Object.assign(row, row.originalData); // 恢复原始数据
-    //   row.isEditing = false;
-    // },
-
+    },
+    async getList() {
+      this.loading = true;
+      const res = await listDisease(this.queryParams);
+      const device = await listDevice({
+        pageSize: 100
+      });
+      this.deviceData = res.rows;
+      this.total = res.total;
+      this.deviceData = this.deviceData.map(item => {
+        for (let i = 0; i < device.rows.length; i++) {
+          if (device.rows[i].deviceId === item.deviceId) {
+            item.province = device.rows[i].province;
+            item.city = device.rows[i].city;
+            item.district = device.rows[i].district;
+            break;
+          }
+        }
+        return item;
+      })
+      this.loading = false;
+    },
     // 状态标签样式
     getStatusTagType(status) {
       status = status ? '预测期' : '非预测期';
@@ -194,14 +158,6 @@ export default {
         '已完成': 'success'
       };
       return map[status] || '';
-    }
-  },
-  computed: {
-    filteredData() {
-      // 这里可以添加过滤数据的逻辑，例如根据页码和每页大小返回数据子集
-      const start = (this.currentPage - 1) * this.pageSize;
-      const end = start + this.pageSize;
-      return this.deviceData.slice(start, end);
     }
   }
 }

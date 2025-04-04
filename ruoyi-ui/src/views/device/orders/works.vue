@@ -104,7 +104,6 @@ export default {
   },
   mounted() {
     this.orderInfo = this.$route.query;
-    console.log(this.orderInfo);
   },
   methods: {
     /** 获取工单详情 */

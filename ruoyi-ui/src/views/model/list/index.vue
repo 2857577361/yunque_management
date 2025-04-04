@@ -161,6 +161,7 @@
         width="60%"
         custom-class="device-detail-dialog"
         :append-to-body="false"
+        @close="getList"
       >
         <div class="detail-container">
           <div class="detail-left">
@@ -355,8 +356,8 @@ export default {
                 (data.data || []).map(disease => [disease.diseaseName, {
                   diseaseId: disease.diseaseId,
                   name: disease.diseaseName || "未知病害",
-                  level: "中等",
-                  description: "暂无"
+                  level: disease.diseaseSeries,
+                  description: disease.diseaseDescription
                 }])
               ).values()
             );
@@ -404,7 +405,6 @@ export default {
 
     // 显示设备详情弹窗
     showDeviceDetailModal(device) {
-      console.log(device)
       this.selectedDevice = device
       this.activeTab = 'basic'
       this.deviceDetailModalVisible = true
@@ -422,7 +422,6 @@ export default {
 
     // 确认删除模型关联
     confirmDeleteModel(queryObj) {
-      console.log(queryObj)
       this.$confirm(`确定要删除此关联吗?`, '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -433,17 +432,30 @@ export default {
           diseaseModels: [queryObj]
         })
         this.$message.success('删除成功')
-        const index = this.selectedDevice.diseases.findIndex(d => {
-          return d.diseaseId === queryObj.diseaseId
-        })
-        if (index !== -1) {
-          this.selectedDevice.diseases.splice(index, 1)
-        }
+        if (queryObj.modelId) {
+          const map = new Map()
+          this.selectedDevice.models = this.selectedDevice.models.filter(m => {
+            if (m.diseaseId !== queryObj.diseaseId || m.modelId !== queryObj.modelId){
+              map.set(m.diseaseId, 1)
+            }
+            return m.diseaseId !== queryObj.diseaseId || m.modelId !== queryObj.modelId
+          })
+          this.selectedDevice.diseases = this.selectedDevice.diseases.filter(m => {
+            return map.has(m.diseaseId);
+          })
 
-        // 刷新关联模型列表
-        this.selectedDevice.models = this.selectedDevice.models.filter(m => {
-          return m.diseaseId !== queryObj.diseaseId
-        })
+
+        } else {
+          const index = this.selectedDevice.diseases.findIndex(d => {
+            return d.diseaseId === queryObj.diseaseId
+          })
+          if (index !== -1) {
+            this.selectedDevice.diseases.splice(index, 1)
+          }
+          this.selectedDevice.models = this.selectedDevice.models.filter(m => {
+            return m.diseaseId !== queryObj.diseaseId
+          })
+        }
       }).catch(() => {
         this.$message.info('已取消删除')
       })

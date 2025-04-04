@@ -248,7 +248,6 @@
 <script>
 import { getDevice, delDevice, addDevice, updateDevice, listCity, listDept, listDeviceByRole } from "@/api/device/device";
 import { getOwner } from "@/api/device/owner";
-import { listDiseaseModel } from "@/api/model";
 import { updataDiseaseModelByDevideId } from "@/api/model";
 import CascadeDiseaseModel from "@/views/device/device/search.vue";
 export default {
@@ -366,7 +365,6 @@ export default {
           }
         })
       })
-      console.log(result)
       result.diseaseModels =  [...new Set(result.diseaseModels.map(item => JSON.stringify(item)))].map(item => JSON.parse(item));
       this.value = result;
     },

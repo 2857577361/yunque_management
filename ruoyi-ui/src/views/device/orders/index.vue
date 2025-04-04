@@ -313,7 +313,6 @@ export default {
   },
   mounted() {
     if (this.$route.query.deviceId) {
-      console.log(this.$route.query.deviceId);
       this.handleAdd()
       this.form.deviceId = this.$route.query.deviceId
     }
@@ -323,7 +322,6 @@ export default {
     getList() {
       this.loading = true;
       this.queryParams.params = {};
-      console.log(this.activeTab);
       this.queryParams.repairStatus =  this.activeTab === 'pending' ? '进行中' : '已完成';
       if (null != this.daterangeCreateDate && '' != this.daterangeCreateDate) {
         this.queryParams.params["beginCreateDate"] = this.daterangeCreateDate[0];
@@ -343,7 +341,6 @@ export default {
     },
     /** Tab 切换事件 */
     handleTabClick(tab) {
-      console.log(tab)
       this.activeTab = tab.name;
       this.getList();
     },

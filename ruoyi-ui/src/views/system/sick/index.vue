@@ -39,30 +39,30 @@
       </el-form>
       <el-card class="table-card">
         <el-table :data="deviceData" stripe style="width: 100%" v-loading="loading">
-          <el-table-column prop="index" label="序号" width="80" align="center"></el-table-column>
           <el-table-column prop="deviceId" label="设备ID" width="140" align="center"></el-table-column>
-          <el-table-column prop="diseaseType" label="病害类型"></el-table-column>
-          <el-table-column prop="year" label="年份" width="100" align="center"></el-table-column>
+          <el-table-column prop="diseaseName" label="病害类型" width="120"></el-table-column>
+          <el-table-column prop="predictedValueDescription" label="预测结果描述" align="center"></el-table-column>
+          <el-table-column prop="selectedModelId" label="选中模型 ID" width="80" align="center"></el-table-column>
 
           <el-table-column label="预测信息" align="center">
-            <el-table-column prop="predictDate" label="预测日期" width="160"></el-table-column>
-            <el-table-column prop="predictValue" label="预测值" width="120">
+            <el-table-column prop="predictionDataTime" label="预测日期" width="160"></el-table-column>
+            <el-table-column prop="predictedValue" label="预测值" width="80">
               <template slot-scope="scope">
-                <el-tag type="warning">{{ scope.row.predictValue }}</el-tag>
+                <el-tag type="warning">{{ scope.row.predictedValue }}</el-tag>
               </template>
             </el-table-column>
           </el-table-column>
 
           <el-table-column label="验证信息" align="center">
             <el-table-column prop="verifyDate" label="验证日期" width="160"></el-table-column>
-            <el-table-column prop="actualValue" label="实验值" width="120">
+            <el-table-column prop="actualValue" label="实验值" width="80">
               <template slot-scope="scope">
-                <el-tag :type="getValueType(scope.row)">{{ scope.row.actualValue }}</el-tag>
+                <el-tag :type="getValueType(scope.row)">{{ scope.row.actualValue || '暂无' }}</el-tag>
               </template>
             </el-table-column>
           </el-table-column>
 
-          <el-table-column label="偏差率" width="120" align="center">
+          <el-table-column label="偏差率" width="100" align="center">
             <template slot-scope="scope">
               {{ calculateDeviation(scope.row) }}
             </template>
@@ -121,8 +121,6 @@ export default {
     this.loading = true;
     const res = await listDisease();
     const device = await listDevice();
-    // this.deviceData = device.data;
-    console.log(device);
     this.deviceData = res.rows;
     this.deviceData = this.deviceData.map(item => {
       for (let i = 0; i < device.rows.length; i++) {
@@ -136,12 +134,14 @@ export default {
       return item;
     })
     this.loading = false;
-    console.log(this.deviceData);
   },
   methods: {
     calculateDeviation(row) {
-      const predict = parseFloat(row.predictValue);
+      const predict = parseFloat(row.predictedValue);
       const actual = parseFloat(row.actualValue);
+      if (!actual) {
+        return '暂无'
+      }
       return ((actual - predict) / predict * 100).toFixed(1) + '%';
     },
     getValueType(row) {

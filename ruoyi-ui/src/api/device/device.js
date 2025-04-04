@@ -9,7 +9,6 @@ export function listDevice(query) {
   })
 }
 export function listDeviceByRole(query) {
-  // console.log(query)
   return request({
     url: '/device/device/listByRoleAndDept',
     method: 'get',
@@ -17,7 +16,6 @@ export function listDeviceByRole(query) {
   })
 }
 export function listClimateDataByDeviceIds(deviceList, query) {
-  // console.log(query)
   return request({
     url: '/device/sensor/queryClimateDataByDeviceIds',
     method: 'post',
