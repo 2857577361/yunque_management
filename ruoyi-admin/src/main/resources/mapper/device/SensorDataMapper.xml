@@ -18,6 +18,7 @@
         <result property="n3SoilWaterContent" column="n3_soil_water_content" />
         <result property="n4SoilWaterContent" column="n4_soil_water_content" />
         <result property="n5SoilWaterContent" column="n5_soil_water_content" />
+        <result property="atmosphericPressure" column="atmospheric_pressure" />
     </resultMap>
 
     <select id="selectClimateDataByDeviceIds" resultType="SensorData">
@@ -30,6 +31,7 @@
         dayly_rainfall AS daylyRainfall,
         wetting_time_of_leaf_surface AS wettingTimeOfLeafSurface,
         hours_sunshine AS hoursSunshine,
+        atmospheric_pressure AS atmosphericPressure,
         n1_soil_water_content AS n1SoilWaterContent,
         n2_soil_water_content AS n2SoilWaterContent,
         n3_soil_water_content AS n3SoilWaterContent,

@@ -29,6 +29,7 @@ public class SensorData extends BaseEntity {
 
     /** 天降雨量 */
     private Double daylyRainfall;
+    private Double atmosphericPressure;
 
     /** 叶面湿润时间 */
     private Double wettingTimeOfLeafSurface;
@@ -58,6 +59,14 @@ public class SensorData extends BaseEntity {
     private Date uploadTime;
 
     // 省略 getter 和 setter 方法
+
+    public Double getAtmosphericPressure() {
+        return atmosphericPressure;
+    }
+
+    public void setAtmosphericPressure(Double atmosphericPressure) {
+        this.atmosphericPressure = atmosphericPressure;
+    }
 
     public String getStationId() {
         return stationId;

@@ -76,3 +76,9 @@ export function delDevice(id) {
     method: 'delete'
   })
 }
+export function manualCheck() {
+  return request({
+    url: '/climate/ws/manualCheck',
+    method: 'post'
+  })
+}

@@ -16,6 +16,9 @@
               <h3 class="title">{{ item.title }}</h3>
               <p class="value">{{ item.value }}</p>
               <span class="tip">{{ item.tip }}</span>
+              <el-button v-if="item.event" @click="item.event">
+                去处理
+              </el-button>
             </div>
           </div>
         </el-card>
@@ -98,6 +101,8 @@
 </template>
 
 <script>
+import { listAlert, updateAlert } from "@/api/climate";
+
 export default {
   data() {
     return {
@@ -129,7 +134,10 @@ export default {
           value: '3起',
           tip: '1起未处理',
           color: '#F56C6C',
-          icon: 'el-icon-warning'
+          icon: 'el-icon-warning',
+          event: () => {
+            this.$router.push({ path: '/data/handleAlert' })
+          }
         }
       ],
 
@@ -160,7 +168,7 @@ export default {
           crop: '小麦',
           disease: '赤霉病',
           area: 156,
-          level: '中'
+          level: '中',
         }
       ],
 
@@ -184,6 +192,17 @@ export default {
       }
       return map[level] || 'info'
     }
+  },
+  async created() {
+    const res = await listAlert();
+    this.stats[3].value = `${res.total} 起`;
+    let count = 0;
+    res.rows.forEach((item, index) => {
+      if (item.status === 0) {
+        count++;
+      }
+    })
+    this.stats[3].tip = `${count} 起未处理`
   },
 
   methods: {

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.climate.mapper.ClimateAlertMapper">
+
+    <resultMap type="ClimateAlert" id="ClimateAlertResult">
+        <id     property="id"       column="id"      />
+        <result property="deviceId"    column="device_id"    />
+        <result property="alertType"  column="alert_type"  />
+        <result property="metricType" column="metric_type" />
+        <result property="metricValue" column="metric_value" />
+        <result property="thresholdValue" column="threshold_value" />
+        <result property="alertLevel" column="alert_level" />
+        <result property="alertTime" column="alert_time" />
+        <result property="status" column="status" />
+        <result property="processedBy" column="processed_by" />
+        <result property="processedTime" column="processed_time" />
+        <result property="processedComment" column="processed_comment" />
+    </resultMap>
+
+    <insert id="insertClimateAlert" parameterType="ClimateAlert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO climate_alert (
+            device_id,
+            alert_type,
+            metric_type,
+            metric_value,
+            threshold_value,
+            alert_level,
+            alert_time,
+            status
+        )
+        SELECT
+            #{deviceId},
+            #{alertType},
+            #{metricType},
+            #{metricValue},
+            #{thresholdValue},
+            #{alertLevel},
+            #{alertTime},
+            #{status}
+        FROM DUAL
+        WHERE NOT EXISTS (
+            SELECT 1 FROM climate_alert
+            WHERE device_id = #{deviceId}
+              AND alert_time = #{alertTime}
+        )
+    </insert>
+
+    <sql id="selectClimateAlertVo">
+        SELECT id, device_id, alert_type, metric_type, metric_value,
+               threshold_value, alert_level, alert_time, status,
+               processed_by, processed_time, processed_comment
+        FROM climate_alert
+    </sql>
+
+    <select id="selectClimateAlertList" parameterType="ClimateAlert" resultMap="ClimateAlertResult">
+        <include refid="selectClimateAlertVo"/>
+        <where>
+            <if test="deviceId != null and deviceId != ''"> AND device_id = #{deviceId}</if>
+            <if test="alertType != null and alertType != ''"> AND alert_type = #{alertType}</if>
+            <if test="metricType != null and metricType != ''"> AND metric_type = #{metricType}</if>
+            <if test="alertLevel != null"> AND alert_level = #{alertLevel}</if>
+            <if test="status != null"> AND status = #{status}</if>
+            <!-- 修改时间条件判断方式 -->
+            <if test="params != null">
+                <if test="params.beginAlertTime != null">
+                    AND alert_time &gt;= #{params.beginAlertTime}
+                </if>
+                <if test="params.endAlertTime != null">
+                    AND alert_time &lt;= #{params.endAlertTime}
+                </if>
+            </if>
+        </where>
+    </select>
+
+    <select id="selectClimateAlertById" parameterType="Long" resultMap="ClimateAlertResult">
+        <include refid="selectClimateAlertVo"/>
+        WHERE id = #{id}
+    </select>
+
+    <update id="updateClimateAlert" parameterType="ClimateAlert">
+        UPDATE climate_alert
+        <set>
+            <if test="status != null">status = #{status},</if>
+            <if test="processedBy != null">processed_by = #{processedBy},</if>
+            <if test="processedTime != null">processed_time = #{processedTime},</if>
+            <if test="processedComment != null">processed_comment = #{processedComment},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteClimateAlertByIds" parameterType="Long">
+        DELETE FROM climate_alert WHERE id IN
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="countUnprocessedAlerts" resultType="int">
+        SELECT COUNT(*) FROM climate_alert WHERE status = 0
+    </select>
+</mapper>
