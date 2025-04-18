@@ -10,15 +10,12 @@
     <el-row :gutter="20" class="stats-row">
       <el-col :span="6" v-for="(item,index) in stats" :key="index">
         <el-card class="stat-card" :style="{background: item.color}">
-          <div class="card-content">
+          <div class="card-content" @click="handleClick(item.event)" style="cursor: pointer;">
             <i :class="item.icon" style="font-size: 40px; color: #fff;"></i>
             <div class="text">
               <h3 class="title">{{ item.title }}</h3>
               <p class="value">{{ item.value }}</p>
               <span class="tip">{{ item.tip }}</span>
-              <el-button v-if="item.event" @click="item.event">
-                去处理
-              </el-button>
             </div>
           </div>
         </el-card>
@@ -135,9 +132,7 @@ export default {
           tip: '1起未处理',
           color: '#F56C6C',
           icon: 'el-icon-warning',
-          event: () => {
-            this.$router.push({ path: '/data/handleAlert' })
-          }
+          event: 'alert'
         }
       ],
 
@@ -194,7 +189,9 @@ export default {
     }
   },
   async created() {
-    const res = await listAlert();
+    const res = await listAlert({
+      pageSize: 200
+    });
     this.stats[3].value = `${res.total} 起`;
     let count = 0;
     res.rows.forEach((item, index) => {
@@ -206,6 +203,11 @@ export default {
   },
 
   methods: {
+    handleClick(item) {
+      if (item === 'alert'){
+        this.$router.push({ path: '/data/handleAlert' })
+      }
+    },
     // 查询操作
     handleQuery() {
       this.pagination.current = 1

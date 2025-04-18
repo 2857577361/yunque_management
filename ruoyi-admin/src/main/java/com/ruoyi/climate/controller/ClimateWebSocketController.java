@@ -42,7 +42,7 @@ public class ClimateWebSocketController extends BaseController {
     @PostMapping("/manualCheck")
     public AjaxResult manualCheck() {
         try {
-            climateDataSimulator.checkSensorDataViolations();
+            climateDataSimulator.checkFrequentRules();
             return success("手动检查已触发");
         } catch (Exception e) {
             return error("触发失败: " + e.getMessage());

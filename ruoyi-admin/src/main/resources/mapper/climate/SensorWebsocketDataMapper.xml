@@ -10,6 +10,10 @@
         <result property="pressure" column="pressure" />
         <result property="recordTime" column="record_time" />
         <result property="status" column="status" />
+        <result property="hourlyRainfall" column="hourly_rainfall" />
+        <result property="daylyRainfall" column="dayly_rainfall" />
+        <result property="wettingTimeOfLeafSurface" column="wetting_time_of_leaf_surface" />
+        <result property="hoursSunshine" column="hours_sunshine" />
     </resultMap>
 
     <select id="selectBetweenDates" resultMap="SensorDataResult">
@@ -20,7 +24,11 @@
             air_humidity as humidity,
             atmospheric_pressure as pressure,
             collect_time as record_time,
-            station_id as status
+            station_id as status,
+            hourly_rainfall as hourly_rainfall,
+            dayly_rainfall as dayly_rainfall,
+            wetting_time_of_leaf_surface as wetting_time_of_leaf_surface,
+            hours_sunshine as hours_sunshine
         FROM sensor_data
         WHERE collect_time BETWEEN #{start} AND #{end}
         ORDER BY collect_time DESC

@@ -9,7 +9,13 @@ public class SensorWebsocketData {
     private Double humidity;
     private Double pressure;
     private LocalDateTime recordTime;
-    private String status; // NORMAL, WARNING, ALERT
+    private String status;
+
+    // 新增字段
+    private Double hourlyRainfall;
+    private Double daylyRainfall;
+    private Double wettingTimeOfLeafSurface;
+    private Double hoursSunshine;
 
     // Getters and Setters
     public Long getId() {
@@ -66,5 +72,37 @@ public class SensorWebsocketData {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public Double getHourlyRainfall() {
+        return hourlyRainfall;
+    }
+
+    public void setHourlyRainfall(Double hourlyRainfall) {
+        this.hourlyRainfall = hourlyRainfall;
+    }
+
+    public Double getDaylyRainfall() {
+        return daylyRainfall;
+    }
+
+    public void setDaylyRainfall(Double daylyRainfall) {
+        this.daylyRainfall = daylyRainfall;
+    }
+
+    public Double getWettingTimeOfLeafSurface() {
+        return wettingTimeOfLeafSurface;
+    }
+
+    public void setWettingTimeOfLeafSurface(Double wettingTimeOfLeafSurface) {
+        this.wettingTimeOfLeafSurface = wettingTimeOfLeafSurface;
+    }
+
+    public Double getHoursSunshine() {
+        return hoursSunshine;
+    }
+
+    public void setHoursSunshine(Double hoursSunshine) {
+        this.hoursSunshine = hoursSunshine;
     }
 }
